@@ -1,6 +1,7 @@
 import os
 # Force Hugging Face cache to be inside the local project folder
 os.environ["HF_HOME"] = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".hf_cache")
+os.environ["HF_HUB_OFFLINE"] = "1"
 
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
