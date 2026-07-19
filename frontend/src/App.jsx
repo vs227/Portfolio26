@@ -14,6 +14,7 @@ import FeaturedProjects from './components/FeaturedProjects';
 import EducationSection from './components/EducationSection';
 import ContactTerminal from './components/ContactTerminal';
 import Footer from './components/Footer';
+import AiAssistant from './components/AiAssistant';
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -73,6 +74,7 @@ export default function App() {
               <ContactTerminal />
             </main>
             <Footer />
+            <AiAssistant />
           </>
         )}
       </div>
