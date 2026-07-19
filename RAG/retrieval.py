@@ -1,4 +1,7 @@
 import os
+# Force Hugging Face cache to be inside the local project folder
+os.environ["HF_HOME"] = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".hf_cache")
+
 from dotenv import load_dotenv
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS

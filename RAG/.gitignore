@@ -10,3 +10,4 @@ wheels/
 
 # Local RAG files
 .env
+.hf_cache/
