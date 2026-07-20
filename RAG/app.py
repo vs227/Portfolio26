@@ -75,6 +75,10 @@ async def chat_endpoint(request: ChatRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.get("/")
+async def root():
+    return {"status": "ok", "service": "Vaishnav Shinde Portfolio RAG API"}
+
 @app.get("/api/health")
 async def health_check():
     return {"status": "ok", "db_loaded": os.path.exists(DB_PATH)}
