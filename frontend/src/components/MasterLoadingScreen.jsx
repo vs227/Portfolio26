@@ -60,7 +60,7 @@ export default function MasterLoadingScreen({ onComplete }) {
           style={{
             width: '90px',
             height: '90px',
-            borderRadius: '50%',
+            borderRadius: '12px',
             border: '2px solid var(--t-border)',
             borderTopColor: 'var(--red-accent)',
             boxShadow: 'none'
@@ -78,8 +78,8 @@ export default function MasterLoadingScreen({ onComplete }) {
             src={logoImg}
             alt="Delta Logo"
             style={{
-              height: '42px',
-              width: 'auto',
+              height: '54px',
+              width: '54px',
               objectFit: 'contain'
             }}
           />
