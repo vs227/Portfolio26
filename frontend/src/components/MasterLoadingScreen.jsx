@@ -56,8 +56,8 @@ export default function MasterLoadingScreen({ onComplete }) {
       <div style={{ position: 'relative', marginBottom: '2.5rem' }}>
         {/* Stable Rectangle */}
         <div style={{
-          width: '96px',
-          height: '96px',
+          width: '140px',
+          height: '80px',
           borderRadius: '12px',
           border: '2px solid var(--t-border)',
           position: 'relative',
@@ -72,8 +72,8 @@ export default function MasterLoadingScreen({ onComplete }) {
             src={logoImg}
             alt="Delta Logo"
             style={{
-              height: '54px',
-              width: '54px',
+              height: '60px',
+              width: '110px',
               objectFit: 'contain',
               zIndex: 2
             }}
@@ -82,7 +82,7 @@ export default function MasterLoadingScreen({ onComplete }) {
           {/* Moving Red Scanning Line */}
           <motion.div
             animate={{
-              y: [-48, 48, -48]
+              y: [-40, 40, -40]
             }}
             transition={{
               duration: 2.2,
