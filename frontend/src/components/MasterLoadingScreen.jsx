@@ -54,33 +54,50 @@ export default function MasterLoadingScreen({ onComplete }) {
       }}
     >
       <div style={{ position: 'relative', marginBottom: '2.5rem' }}>
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 3.5, repeat: Infinity, ease: 'linear' }}
-          style={{
-            width: '90px',
-            height: '90px',
-            borderRadius: '12px',
-            border: '2px solid var(--t-border)',
-            borderTopColor: 'var(--red-accent)',
-            boxShadow: 'none'
-          }}
-        />
-
+        {/* Stable Rectangle */}
         <div style={{
-          position: 'absolute',
-          inset: 0,
+          width: '96px',
+          height: '96px',
+          borderRadius: '12px',
+          border: '2px solid var(--t-border)',
+          position: 'relative',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center'
+          justifyContent: 'center',
+          overflow: 'hidden',
+          backgroundColor: 'rgba(255, 255, 255, 0.02)'
         }}>
+          {/* Centered Logo */}
           <img
             src={logoImg}
             alt="Delta Logo"
             style={{
               height: '54px',
               width: '54px',
-              objectFit: 'contain'
+              objectFit: 'contain',
+              zIndex: 2
+            }}
+          />
+
+          {/* Moving Red Scanning Line */}
+          <motion.div
+            animate={{
+              y: [-48, 48, -48]
+            }}
+            transition={{
+              duration: 2.2,
+              repeat: Infinity,
+              ease: 'easeInOut'
+            }}
+            style={{
+              position: 'absolute',
+              left: 0,
+              right: 0,
+              height: '2px',
+              backgroundColor: 'var(--red-accent)',
+              boxShadow: '0 0 8px var(--red-accent)',
+              opacity: 0.8,
+              zIndex: 3
             }}
           />
         </div>
