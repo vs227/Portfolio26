@@ -3,6 +3,7 @@ import os
 os.environ["HF_HOME"] = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".hf_cache")
 os.environ["HF_HUB_OFFLINE"] = "1"
 
+import threading
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -13,17 +14,26 @@ from retrieval import query_rag, get_vector_db, get_llm
 
 DB_PATH = "faiss_index"
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    # Preload the vector database and LLM at startup so that they are cached
-    # and the first user query doesn't suffer from a loading/initialization delay
-    print("Preloading vector database and LLM...")
+# Track whether models have finished loading
+_models_ready = threading.Event()
+
+def _preload_models():
+    """Load models in a background thread so the server can bind the port immediately."""
+    print("Background: Preloading vector database and LLM...")
     try:
         get_vector_db(DB_PATH)
         get_llm()
-        print("Preloading completed successfully.")
+        print("Background: Preloading completed successfully.")
     except Exception as e:
-        print(f"Failed to preload vector database or LLM: {e}")
+        print(f"Background: Failed to preload: {e}")
+    finally:
+        _models_ready.set()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Start preloading in a background thread so uvicorn can open the port immediately
+    thread = threading.Thread(target=_preload_models, daemon=True)
+    thread.start()
     yield
 
 app = FastAPI(title="Vaishnav Shinde Portfolio RAG API", lifespan=lifespan)
@@ -47,6 +57,9 @@ class ChatRequest(BaseModel):
 
 @app.post("/api/chat")
 async def chat_endpoint(request: ChatRequest):
+    # Wait up to 120s for background model loading to finish
+    if not _models_ready.wait(timeout=120):
+        raise HTTPException(status_code=503, detail="Models are still loading, please try again shortly.")
     try:
         # Convert history format to LangChain message objects
         chat_history = []
