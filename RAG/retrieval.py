@@ -1,14 +1,8 @@
 import os
 # Force Hugging Face cache to be inside the local project folder
 os.environ["HF_HOME"] = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".hf_cache")
-os.environ["HF_HUB_OFFLINE"] = "1"
 
 from dotenv import load_dotenv
-from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_community.vectorstores import FAISS
-from langchain_groq import ChatGroq
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.output_parsers import StrOutputParser
 
 # Load env variables
 load_dotenv()
@@ -19,6 +13,9 @@ _db = None
 _llm = None
 
 def get_vector_db(db_path: str):
+    # Lazy imports to avoid loading PyTorch at module import time
+    from langchain_huggingface import HuggingFaceEmbeddings
+    from langchain_community.vectorstores import FAISS
     global _embeddings, _db
     if _db is None:
         if not os.path.exists(db_path):
@@ -28,6 +25,7 @@ def get_vector_db(db_path: str):
     return _db
 
 def get_llm():
+    from langchain_groq import ChatGroq
     global _llm
     if _llm is None:
         _llm = ChatGroq(
@@ -37,6 +35,9 @@ def get_llm():
     return _llm
 
 def query_rag(question: str, chat_history: list, db_path: str) -> str:
+    from langchain_core.prompts import ChatPromptTemplate
+    from langchain_core.output_parsers import StrOutputParser
+
     db = get_vector_db(db_path)
     llm = get_llm()
     

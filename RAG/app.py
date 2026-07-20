@@ -1,7 +1,7 @@
 import os
+import time
 # Force Hugging Face cache to be inside the local project folder
 os.environ["HF_HOME"] = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".hf_cache")
-os.environ["HF_HUB_OFFLINE"] = "1"
 
 import threading
 from contextlib import asynccontextmanager
@@ -9,23 +9,41 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List
-from langchain_core.messages import HumanMessage, AIMessage
-from retrieval import query_rag, get_vector_db, get_llm
 
 DB_PATH = "faiss_index"
 
 # Track whether models have finished loading
 _models_ready = threading.Event()
+_load_error = None
 
 def _preload_models():
     """Load models in a background thread so the server can bind the port immediately."""
-    print("Background: Preloading vector database and LLM...")
+    global _load_error
+    t0 = time.time()
     try:
+        print(f"[preload] Starting... HF_HOME={os.environ.get('HF_HOME')}", flush=True)
+        print(f"[preload] .hf_cache exists: {os.path.exists(os.environ.get('HF_HOME', ''))}", flush=True)
+        print(f"[preload] faiss_index exists: {os.path.exists(DB_PATH)}", flush=True)
+
+        print("[preload] Importing langchain modules...", flush=True)
+        from langchain_core.messages import HumanMessage, AIMessage
+        from retrieval import query_rag, get_vector_db, get_llm
+        print(f"[preload] Imports done in {time.time()-t0:.1f}s", flush=True)
+
+        print("[preload] Loading vector database...", flush=True)
         get_vector_db(DB_PATH)
+        print(f"[preload] Vector DB loaded in {time.time()-t0:.1f}s", flush=True)
+
+        print("[preload] Initializing LLM...", flush=True)
         get_llm()
-        print("Background: Preloading completed successfully.")
+        print(f"[preload] LLM initialized in {time.time()-t0:.1f}s", flush=True)
+
+        print(f"[preload] ALL DONE in {time.time()-t0:.1f}s", flush=True)
     except Exception as e:
-        print(f"Background: Failed to preload: {e}")
+        _load_error = str(e)
+        print(f"[preload] FAILED after {time.time()-t0:.1f}s: {e}", flush=True)
+        import traceback
+        traceback.print_exc()
     finally:
         _models_ready.set()
 
@@ -57,10 +75,14 @@ class ChatRequest(BaseModel):
 
 @app.post("/api/chat")
 async def chat_endpoint(request: ChatRequest):
-    # Wait up to 120s for background model loading to finish
-    if not _models_ready.wait(timeout=120):
+    # Wait up to 300s for background model loading to finish
+    if not _models_ready.wait(timeout=300):
         raise HTTPException(status_code=503, detail="Models are still loading, please try again shortly.")
+    if _load_error:
+        raise HTTPException(status_code=500, detail=f"Model loading failed: {_load_error}")
     try:
+        from langchain_core.messages import HumanMessage, AIMessage
+        from retrieval import query_rag
         # Convert history format to LangChain message objects
         chat_history = []
         for msg in request.history:
@@ -77,11 +99,12 @@ async def chat_endpoint(request: ChatRequest):
 
 @app.get("/")
 async def root():
-    return {"status": "ok", "service": "Vaishnav Shinde Portfolio RAG API"}
+    ready = _models_ready.is_set()
+    return {"status": "ok", "models_ready": ready, "error": _load_error}
 
 @app.get("/api/health")
 async def health_check():
-    return {"status": "ok", "db_loaded": os.path.exists(DB_PATH)}
+    return {"status": "ok", "db_loaded": os.path.exists(DB_PATH), "models_ready": _models_ready.is_set()}
 
 if __name__ == "__main__":
     import uvicorn
