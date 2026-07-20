@@ -1,10 +1,7 @@
 import os
-# Force Hugging Face cache to be inside the local project folder
-os.environ["HF_HOME"] = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".hf_cache")
+import time
 
 from dotenv import load_dotenv
-
-# Load env variables
 load_dotenv()
 
 # Global variables to cache model/db so we don't reload on every single query
@@ -13,14 +10,17 @@ _db = None
 _llm = None
 
 def get_vector_db(db_path: str):
-    # Lazy imports to avoid loading PyTorch at module import time
-    from langchain_huggingface import HuggingFaceEmbeddings
+    """Load FAISS vector DB using HuggingFace Inference API for embeddings (no PyTorch needed)."""
+    from langchain_huggingface import HuggingFaceEndpointEmbeddings
     from langchain_community.vectorstores import FAISS
     global _embeddings, _db
     if _db is None:
         if not os.path.exists(db_path):
             raise FileNotFoundError(f"Vector database not found at {db_path}. Please run ingestion first.")
-        _embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+        _embeddings = HuggingFaceEndpointEmbeddings(
+            model="sentence-transformers/all-MiniLM-L6-v2",
+            huggingfacehub_api_token=os.getenv("HF_TOKEN"),
+        )
         _db = FAISS.load_local(db_path, _embeddings, allow_dangerous_deserialization=True)
     return _db
 

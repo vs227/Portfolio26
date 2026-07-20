@@ -1,8 +1,5 @@
 import os
 import time
-# Force Hugging Face cache to be inside the local project folder
-os.environ["HF_HOME"] = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".hf_cache")
-
 import threading
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
@@ -21,16 +18,13 @@ def _preload_models():
     global _load_error
     t0 = time.time()
     try:
-        print(f"[preload] Starting... HF_HOME={os.environ.get('HF_HOME')}", flush=True)
-        print(f"[preload] .hf_cache exists: {os.path.exists(os.environ.get('HF_HOME', ''))}", flush=True)
+        print(f"[preload] Starting...", flush=True)
         print(f"[preload] faiss_index exists: {os.path.exists(DB_PATH)}", flush=True)
 
-        print("[preload] Importing langchain modules...", flush=True)
-        from langchain_core.messages import HumanMessage, AIMessage
-        from retrieval import query_rag, get_vector_db, get_llm
+        from retrieval import get_vector_db, get_llm
         print(f"[preload] Imports done in {time.time()-t0:.1f}s", flush=True)
 
-        print("[preload] Loading vector database...", flush=True)
+        print("[preload] Loading vector database (via HF API)...", flush=True)
         get_vector_db(DB_PATH)
         print(f"[preload] Vector DB loaded in {time.time()-t0:.1f}s", flush=True)
 
@@ -49,7 +43,6 @@ def _preload_models():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Start preloading in a background thread so uvicorn can open the port immediately
     thread = threading.Thread(target=_preload_models, daemon=True)
     thread.start()
     yield
