@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { FiCpu } from 'react-icons/fi';
+import logoImg from '../assets/delta2-removebg-preview.png';
 
 const BOOT_LOGS = [
   'MOUNTING VAISHNAV SHINDE SYSTEM ARCHITECTURE...',
@@ -63,7 +63,7 @@ export default function MasterLoadingScreen({ onComplete }) {
             borderRadius: '50%',
             border: '2px solid var(--t-border)',
             borderTopColor: 'var(--red-accent)',
-            boxShadow: '0 0 20px rgba(255, 0, 60, 0.25)'
+            boxShadow: 'none'
           }}
         />
 
@@ -72,10 +72,17 @@ export default function MasterLoadingScreen({ onComplete }) {
           inset: 0,
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center',
-          color: 'var(--t-text-primary)'
+          justifyContent: 'center'
         }}>
-          <FiCpu size={30} />
+          <img
+            src={logoImg}
+            alt="Delta Logo"
+            style={{
+              height: '42px',
+              width: 'auto',
+              objectFit: 'contain'
+            }}
+          />
         </div>
       </div>
 
@@ -114,7 +121,7 @@ export default function MasterLoadingScreen({ onComplete }) {
             height: '100%',
             width: `${progress}%`,
             backgroundColor: 'var(--red-accent)',
-            boxShadow: '0 0 10px var(--red-accent)'
+            boxShadow: 'none'
           }}
         />
       </div>

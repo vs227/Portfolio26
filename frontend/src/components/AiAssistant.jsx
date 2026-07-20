@@ -306,7 +306,21 @@ export default function AiAssistant() {
                 {messages.map((msg, idx) => (
                   <div key={idx} className={`ai-message-row ${msg.role}`}>
                     <div className={`ai-message-avatar ${msg.role}`}>
-                      {msg.role === 'user' ? <FiUser size={12} /> : <FiCpu size={12} />}
+                      {msg.role === 'user' ? (
+                        <FiUser size={12} />
+                      ) : (
+                        <img
+                          src={logoImg}
+                          alt="Delta Logo"
+                          style={{
+                            height: '14px',
+                            width: '14px',
+                            objectFit: 'contain',
+                            filter: theme === 'light' ? 'invert(1) brightness(0.3)' : 'none',
+                            transition: 'filter 0.3s ease'
+                          }}
+                        />
+                      )}
                     </div>
                     <div className={`ai-message-bubble ${msg.role}`}>
                       {msg.role === 'assistant' && idx === typingMessageIndex ? (
@@ -324,7 +338,17 @@ export default function AiAssistant() {
                 {isLoading && (
                   <div className="ai-message-row assistant">
                     <div className="ai-message-avatar assistant">
-                      <FiCpu size={12} className="ai-pulse-icon" />
+                      <img
+                        src={logoImg}
+                        alt="Delta Logo"
+                        style={{
+                          height: '14px',
+                          width: '14px',
+                          objectFit: 'contain',
+                          filter: theme === 'light' ? 'invert(1) brightness(0.3)' : 'none',
+                          transition: 'filter 0.3s ease'
+                        }}
+                      />
                     </div>
                     <div className="ai-message-bubble assistant loading-bubble">
                       <div className="typing-dots">
