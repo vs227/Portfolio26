@@ -23,11 +23,35 @@ export default function AiAssistant() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('chat'); // 'chat' or 'about'
+  const [typingMessageIndex, setTypingMessageIndex] = useState(-1);
   
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const TypewriterText = ({ text, onComplete, onUpdate }) => {
+    const [displayedText, setDisplayedText] = useState('');
+    
+    useEffect(() => {
+      let index = 0;
+      const interval = setInterval(() => {
+        index += 3;
+        if (index >= text.length) {
+          setDisplayedText(text);
+          clearInterval(interval);
+          onComplete();
+        } else {
+          setDisplayedText(text.slice(0, index));
+          onUpdate();
+        }
+      }, 10);
+      
+      return () => clearInterval(interval);
+    }, [text, onComplete, onUpdate]);
+
+    return <>{formatMessage(displayedText)}</>;
   };
 
   useEffect(() => {
@@ -69,13 +93,21 @@ export default function AiAssistant() {
       }
 
       const data = await response.json();
-      setMessages(prev => [...prev, { role: 'assistant', content: data.response }]);
+      setMessages(prev => {
+        const next = [...prev, { role: 'assistant', content: data.response }];
+        setTypingMessageIndex(next.length - 1);
+        return next;
+      });
     } catch (error) {
       console.error('RAG Query Error:', error);
-      setMessages(prev => [...prev, { 
-        role: 'assistant', 
-        content: "I'm having trouble connecting to my server. Please make sure the RAG backend server is running in the background!" 
-      }]);
+      setMessages(prev => {
+        const next = [...prev, { 
+          role: 'assistant', 
+          content: "I'm having trouble connecting to my server. Please make sure the RAG backend server is running in the background!" 
+        }];
+        setTypingMessageIndex(next.length - 1);
+        return next;
+      });
     } finally {
       setIsLoading(false);
     }
@@ -211,10 +243,13 @@ export default function AiAssistant() {
               
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <button 
-                  onClick={() => setMessages([{
-                    role: 'assistant',
-                    content: "Hello! I am Vaishnav's AI Assistant Core. Ask me anything about his skills, education, certifications, or projects!"
-                  }])} 
+                  onClick={() => {
+                    setMessages([{
+                      role: 'assistant',
+                      content: "Hello! I am Vaishnav's AI Assistant Core. Ask me anything about his skills, education, certifications, or projects!"
+                    }]);
+                    setTypingMessageIndex(-1);
+                  }} 
                   className="ai-action-btn"
                   title="Reset Conversation"
                 >
@@ -274,7 +309,15 @@ export default function AiAssistant() {
                       {msg.role === 'user' ? <FiUser size={12} /> : <FiCpu size={12} />}
                     </div>
                     <div className={`ai-message-bubble ${msg.role}`}>
-                      {formatMessage(msg.content)}
+                      {msg.role === 'assistant' && idx === typingMessageIndex ? (
+                        <TypewriterText 
+                          text={msg.content} 
+                          onComplete={() => setTypingMessageIndex(-1)} 
+                          onUpdate={scrollToBottom}
+                        />
+                      ) : (
+                        formatMessage(msg.content)
+                      )}
                     </div>
                   </div>
                 ))}
