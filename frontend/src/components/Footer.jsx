@@ -21,14 +21,14 @@ export default function Footer() {
               color: 'var(--t-text-primary)',
               marginBottom: '0.25rem'
             }}>
-              VAISHNAV<span style={{ color: 'var(--red-accent)' }}>.SHINDE</span>
+              Powered by <span style={{ color: 'var(--red-accent)' }}>Delta AI</span>
             </div>
             <div style={{
               fontFamily: 'Space Grotesk, monospace',
               fontSize: '0.74rem',
               color: 'var(--t-text-muted)'
             }}>
-              © {new Date().getFullYear()} VAISHNAV SHINDE • MIT ADT UNIVERSITY, PUNE
+              © {new Date().getFullYear()} VAISHNAV SHINDE • DEV
             </div>
           </div>
 
