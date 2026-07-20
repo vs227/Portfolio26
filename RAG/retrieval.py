@@ -19,6 +19,7 @@ def get_vector_db(db_path: str):
             raise FileNotFoundError(f"Vector database not found at {db_path}. Please run ingestion first.")
         _embeddings = HuggingFaceEndpointEmbeddings(
             model="sentence-transformers/all-MiniLM-L6-v2",
+            task="feature-extraction",
             huggingfacehub_api_token=os.getenv("HF_TOKEN"),
         )
         _db = FAISS.load_local(db_path, _embeddings, allow_dangerous_deserialization=True)
