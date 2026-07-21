@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { useTheme } from '../context/ThemeContext';
+import bckVideo from '../assets/bck1.mp4';
 
 export default function MasterCanvasBackground() {
   const canvasRef = useRef(null);
@@ -72,9 +73,6 @@ export default function MasterCanvasBackground() {
 
       const isDark = themeRef.current === 'dark';
       ctx.clearRect(0, 0, width, height);
-
-      ctx.fillStyle = isDark ? '#000000' : '#F5F5F7';
-      ctx.fillRect(0, 0, width, height);
 
       const mouseGlow = ctx.createRadialGradient(mouseX, mouseY, 0, mouseX, mouseY, isMobile ? 250 : 400);
       mouseGlow.addColorStop(0, isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(220, 0, 50, 0.03)');
@@ -155,16 +153,55 @@ export default function MasterCanvasBackground() {
   }, []);
 
   return (
-    <canvas
-      ref={canvasRef}
+    <div
       style={{
         position: 'fixed',
         inset: 0,
         width: '100vw',
         height: '100vh',
         pointerEvents: 'none',
-        zIndex: 0
+        zIndex: 0,
+        overflow: 'hidden'
       }}
-    />
+    >
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        style={{
+          position: 'absolute',
+          inset: 0,
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+          filter: theme === 'dark' ? 'brightness(0.6) contrast(1.02)' : 'brightness(1) opacity(0.85)',
+          transition: 'filter 0.4s ease'
+        }}
+      >
+        <source src={bckVideo} type="video/mp4" />
+      </video>
+
+      {/* Light overlay tint to preserve clarity */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          background: theme === 'dark' ? 'rgba(0, 0, 0, 0.15)' : 'rgba(245, 245, 247, 0.15)',
+          transition: 'background 0.4s ease'
+        }}
+      />
+
+      <canvas
+        ref={canvasRef}
+        style={{
+          position: 'absolute',
+          inset: 0,
+          width: '100%',
+          height: '100%',
+          pointerEvents: 'none'
+        }}
+      />
+    </div>
   );
 }

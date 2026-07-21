@@ -44,14 +44,14 @@
   --t-input-border: rgba(255, 255, 255, 0.08);
   --t-badge-bg: rgba(255, 255, 255, 0.05);
   --t-badge-border: rgba(255, 255, 255, 0.15);
-  --t-nav-bg: rgba(5, 5, 8, 0.42);
-  --t-nav-bg-transparent: rgba(12, 12, 18, 0.15);
+  --t-nav-bg: rgba(0, 0, 0, 0.45);
+  --t-nav-bg-transparent: rgba(0, 0, 0, 0.2);
   --t-nav-border: rgba(255, 255, 255, 0.12);
   --t-nav-shadow: 0 12px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
   --t-nav-shadow-rest: 0 8px 32px rgba(0, 0, 0, 0.35), inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
   --t-tab-active-bg: rgba(255, 255, 255, 0.12);
   --t-tab-active-border: rgba(255, 255, 255, 0.22);
-  --t-mobile-menu-bg: rgba(5, 5, 8, 0.75);
+  --t-mobile-menu-bg: rgba(0, 0, 0, 0.8);
   --t-overlay-bg: rgba(0, 0, 0, 0.75);
   --t-hero-stat-bg: rgba(5, 5, 8, 0.82);
   --t-hero-stat-border: rgba(255, 255, 255, 0.12);
