@@ -287,7 +287,7 @@ export default function AiAssistant() {
                   height: '20px',
                   width: 'auto',
                   objectFit: 'contain',
-                  filter: theme === 'light' ? 'invert(1) brightness(0.3)' : 'none',
+                  filter: 'brightness(0) saturate(100%) invert(16%) sepia(99%) saturate(7404%) hue-rotate(346deg) brightness(101%) contrast(106%)',
                   transition: 'filter 0.3s ease'
                 }}
               />
@@ -598,27 +598,22 @@ export default function AiAssistant() {
           height: 46px;
           border-radius: 8px;
           background: var(--t-card-bg);
-          border: 1px solid var(--red-accent);
+          border: 1px solid rgba(255, 255, 255, 0.35);
           color: var(--t-text-primary);
           display: flex;
           align-items: center;
           justify-content: center;
           cursor: pointer;
-          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), var(--glow-red);
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 0 0 8px rgba(255, 255, 255, 0.2);
           backdrop-filter: var(--glass-blur);
           -webkit-backdrop-filter: var(--glass-blur);
           transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-          animation: fabGlowPulse 3s infinite alternate ease-in-out;
-        }
-
-        @keyframes fabGlowPulse {
-          0% { box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 0 0 12px rgba(255, 0, 60, 0.3); }
-          100% { box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 25px rgba(255, 0, 60, 0.65); }
+          animation: fabWhiteGlowPulse 3s infinite alternate ease-in-out;
         }
 
         .ai-fab-btn:hover:not(.active) {
-          border-color: var(--red-accent);
-          box-shadow: var(--glow-red), 0 12px 35px rgba(255, 0, 60, 0.4);
+          border-color: rgba(255, 255, 255, 0.65);
+          box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45), 0 0 12px rgba(255, 255, 255, 0.4);
           transform: translateY(-2px);
         }
 
