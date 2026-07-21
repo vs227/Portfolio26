@@ -47,6 +47,10 @@
   --t-nav-bg: rgba(0, 0, 0, 0.45);
   --t-nav-bg-transparent: rgba(0, 0, 0, 0.2);
   --t-nav-border: rgba(255, 255, 255, 0.12);
+  --t-nav-text-primary: #FFFFFF;
+  --t-nav-text-muted: #888899;
+  --t-nav-tab-active-bg: rgba(255, 255, 255, 0.12);
+  --t-nav-tab-active-border: rgba(255, 255, 255, 0.22);
   --t-nav-shadow: 0 12px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
   --t-nav-shadow-rest: 0 8px 32px rgba(0, 0, 0, 0.35), inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
   --t-tab-active-bg: rgba(255, 255, 255, 0.12);
@@ -91,85 +95,90 @@
 
 [data-theme="light"] {
 
-  --bg-dark: #F5F5F7;
-  --bg-card-glass: rgba(255, 255, 255, 0.82);
-  --bg-card-hover: rgba(245, 245, 250, 0.95);
+  --bg-dark: #F4F6F8;
+  --bg-card-glass: rgba(255, 255, 255, 0.92);
+  --bg-card-hover: #F8FAFC;
 
-  --border-subtle: rgba(0, 0, 0, 0.08);
-  --border-red: rgba(220, 0, 50, 0.35);
-  --border-white: rgba(0, 0, 0, 0.12);
+  --border-subtle: #E2E8F0;
+  --border-red: rgba(225, 29, 72, 0.35);
+  --border-white: #E2E8F0;
 
-  --red-accent: #DC0032;
-  --text-white: #1A1A2E;
-  --text-grey-light: #333344;
-  --text-grey-mid: #555566;
-  --text-grey-muted: #777788;
-  --bg-grey-dark: #EEEEF2;
+  --red-accent: #E11D48;
+  --red-dark: #BE123C;
+  --text-white: #0F172A;
+  --text-grey-light: #334155;
+  --text-grey-mid: #475569;
+  --text-grey-muted: #64748B;
+  --bg-grey-dark: #E2E8F0;
 
-  --glow-white: 0 0 20px rgba(0, 0, 0, 0.06);
-  --glow-red: 0 0 15px rgba(220, 0, 50, 0.2);
-  --glass-blur: blur(20px);
+  --glow-white: 0 4px 20px rgba(0, 0, 0, 0.05);
+  --glow-red: 0 4px 15px rgba(225, 29, 72, 0.2);
+  --glass-blur: blur(24px);
 
   /* ── Theme-aware tokens ── */
-  --t-bg: #F5F5F7;
-  --t-bg-alt: #EDEDF0;
-  --t-text-primary: #1A1A2E;
-  --t-text-secondary: #333344;
-  --t-text-muted: #777788;
-  --t-text-dim: #999AAA;
-  --t-card-bg: rgba(255, 255, 255, 0.82);
-  --t-card-bg-solid: rgba(255, 255, 255, 0.88);
-  --t-card-hover-bg: rgba(245, 245, 250, 0.95);
-  --t-border: rgba(0, 0, 0, 0.08);
-  --t-border-strong: rgba(0, 0, 0, 0.15);
-  --t-border-faint: rgba(0, 0, 0, 0.04);
+  --t-bg: #F4F6F8;
+  --t-bg-alt: #E2E8F0;
+  --t-text-primary: #0F172A;
+  --t-text-secondary: #475569;
+  --t-text-muted: #64748B;
+  --t-text-dim: #94A3B8;
+  --t-card-bg: #FFFFFF;
+  --t-card-bg-solid: #FFFFFF;
+  --t-card-hover-bg: #F8FAFC;
+  --t-border: #E2E8F0;
+  --t-border-strong: #CBD5E1;
+  --t-border-faint: #F1F5F9;
   --t-input-bg: #FFFFFF;
-  --t-input-border: rgba(0, 0, 0, 0.1);
-  --t-badge-bg: rgba(0, 0, 0, 0.04);
-  --t-badge-border: rgba(0, 0, 0, 0.1);
-  --t-nav-bg: rgba(255, 255, 255, 0.55);
-  --t-nav-bg-transparent: rgba(255, 255, 255, 0.28);
-  --t-nav-border: rgba(0, 0, 0, 0.08);
-  --t-nav-shadow: 0 8px 32px rgba(0, 0, 0, 0.08), inset 0 -1px 0 0 rgba(0, 0, 0, 0.04);
-  --t-nav-shadow-rest: 0 4px 20px rgba(0, 0, 0, 0.04), inset 0 -1px 0 0 rgba(0, 0, 0, 0.03);
-  --t-tab-active-bg: rgba(0, 0, 0, 0.06);
-  --t-tab-active-border: rgba(0, 0, 0, 0.12);
-  --t-mobile-menu-bg: rgba(255, 255, 255, 0.82);
-  --t-overlay-bg: rgba(255, 255, 255, 0.85);
-  --t-hero-stat-bg: rgba(255, 255, 255, 0.82);
-  --t-hero-stat-border: rgba(0, 0, 0, 0.08);
-  --t-btn-primary-bg: #1A1A2E;
+  --t-input-border: #E2E8F0;
+  --t-badge-bg: #F8FAFC;
+  --t-badge-border: #E2E8F0;
+  --t-nav-bg: rgba(24, 28, 36, 0.92);
+  --t-nav-bg-transparent: rgba(28, 33, 44, 0.78);
+  --t-nav-border: rgba(255, 255, 255, 0.12);
+  --t-nav-text-primary: #F8FAFC;
+  --t-nav-text-muted: #94A3B8;
+  --t-nav-tab-active-bg: rgba(255, 255, 255, 0.12);
+  --t-nav-tab-active-border: rgba(255, 255, 255, 0.2);
+  --t-nav-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.35), inset 0 -1px 0 0 rgba(255, 255, 255, 0.08);
+  --t-nav-shadow-rest: 0 4px 20px rgba(0, 0, 0, 0.2), inset 0 -1px 0 0 rgba(255, 255, 255, 0.05);
+  --t-tab-active-bg: #F8FAFC;
+  --t-tab-active-border: #CBD5E1;
+  --t-mobile-menu-bg: rgba(24, 28, 36, 0.95);
+  --t-overlay-bg: rgba(244, 246, 248, 0.88);
+  --t-hero-stat-bg: #FFFFFF;
+  --t-hero-stat-border: #E2E8F0;
+  --t-btn-primary-bg: #0F172A;
   --t-btn-primary-text: #FFFFFF;
-  --t-btn-secondary-bg: rgba(0, 0, 0, 0.04);
-  --t-btn-secondary-border: rgba(0, 0, 0, 0.12);
+  --t-btn-secondary-bg: #F8FAFC;
+  --t-btn-secondary-border: #E2E8F0;
   --t-btn-ghost-bg: #FFFFFF;
-  --t-btn-ghost-border: rgba(0, 0, 0, 0.1);
-  --t-footer-bg: #F5F5F7;
-  --t-footer-border: rgba(0, 0, 0, 0.06);
-  --t-scrollbar-track: #F5F5F7;
-  --t-scrollbar-thumb: #C8C8D0;
-  --t-selection-bg: rgba(220, 0, 50, 0.15);
-  --t-selection-text: #1A1A2E;
-  --t-gradient-start: #1A1A2E;
-  --t-gradient-end: #555566;
+  --t-btn-ghost-border: #E2E8F0;
+  --t-footer-bg: #F4F6F8;
+  --t-footer-border: #E2E8F0;
+  --t-scrollbar-track: #F4F6F8;
+  --t-scrollbar-thumb: #CBD5E1;
+  --t-selection-bg: rgba(225, 29, 72, 0.15);
+  --t-selection-text: #0F172A;
+  --t-gradient-start: #0F172A;
+  --t-gradient-end: #475569;
   --t-timeline-node-bg: #FFFFFF;
-  --t-dot-default: #BBBBC8;
-  --t-skill-icon: #1A1A2E;
-  --t-skill-name: #333344;
-  --t-grid-line: rgba(0, 0, 0, 0.025);
+  --t-dot-default: #94A3B8;
+  --t-skill-icon: #0F172A;
+  --t-skill-name: #334155;
+  --t-grid-line: rgba(0, 0, 0, 0.035);
   --t-particle-default: rgba(0, 0, 0, 0.15);
-  --t-canvas-glow-start: rgba(220, 0, 50, 0.03);
+  --t-canvas-glow-start: rgba(225, 29, 72, 0.04);
   --t-scanline: rgba(0, 0, 0, 0.015);
-  --t-connector-line: rgba(0, 0, 0, 0.04);
-  --t-tag-bg: rgba(0, 0, 0, 0.03);
-  --t-tag-border: rgba(0, 0, 0, 0.06);
-  --t-separator: rgba(0, 0, 0, 0.06);
-  --t-experience-line: rgba(0, 0, 0, 0.08);
+  --t-connector-line: rgba(0, 0, 0, 0.06);
+  --t-tag-bg: #F8FAFC;
+  --t-tag-border: #E2E8F0;
+  --t-separator: #E2E8F0;
+  --t-experience-line: #E2E8F0;
   --t-experience-dot-bg: #FFFFFF;
-  --t-divider-faint: rgba(0, 0, 0, 0.1);
-  --t-category-btn-bg: rgba(255, 255, 255, 0.85);
-  --t-glow-hover: 0 0 20px rgba(0, 0, 0, 0.04);
-  --t-card-shadow-hover: 0 12px 35px rgba(0, 0, 0, 0.08), 0 0 15px rgba(0, 0, 0, 0.03);
+  --t-divider-faint: #F1F5F9;
+  --t-category-btn-bg: #FFFFFF;
+  --t-glow-hover: 0 10px 30px rgba(0, 0, 0, 0.04);
+  --t-card-shadow-hover: 0 20px 40px -10px rgba(0, 0, 0, 0.06), 0 0 1px rgba(0, 0, 0, 0.08);
 }
 
 * {
@@ -432,49 +441,71 @@ p {
   }
 }
 
-/* ── Theme toggle button styles ── */
+/* ── Creative Non-Glow Theme Toggle Switch ── */
 .theme-toggle-btn {
   position: relative;
-  width: 44px;
-  height: 24px;
-  border-radius: 9999px;
+  width: 52px;
+  height: 26px;
+  border-radius: 4px;
   border: 1px solid var(--t-border-strong);
   background: var(--t-badge-bg);
   cursor: pointer;
-  padding: 0;
+  padding: 2px;
   outline: none;
-  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: border-color 0.25s ease, background-color 0.25s ease;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   flex-shrink: 0;
+  box-shadow: none !important;
 }
 
 .theme-toggle-btn:hover {
   border-color: var(--red-accent);
-  box-shadow: 0 0 12px rgba(255, 0, 60, 0.15);
+  box-shadow: none !important;
+}
+
+.theme-toggle-track {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 6px;
+  pointer-events: none;
+}
+
+.toggle-track-icon {
+  font-size: 11px;
+  color: var(--t-text-dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s ease;
+  opacity: 0.5;
+}
+
+.toggle-track-icon.active {
+  opacity: 0.95;
 }
 
 .theme-toggle-knob {
   position: absolute;
   top: 2px;
   left: 2px;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  border-radius: 3px;
   background: var(--red-accent);
-  box-shadow: 0 0 8px rgba(255, 0, 60, 0.4);
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  color: #FFFFFF;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: none !important;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.25s ease;
+  z-index: 2;
 }
 
 [data-theme="light"] .theme-toggle-knob {
-  transform: translateX(20px);
-}
-
-.theme-toggle-icon {
-  font-size: 10px;
-  line-height: 1;
-  color: #FFFFFF;
+  transform: translateX(26px);
 }

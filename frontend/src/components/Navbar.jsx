@@ -73,7 +73,7 @@ export default function Navbar() {
               height: '38px',
               width: 'auto',
               objectFit: 'contain',
-              filter: theme === 'light' ? 'invert(1) brightness(0.3)' : 'none',
+              filter: 'none',
               transition: 'filter 0.3s ease'
             }}
           />
@@ -81,7 +81,7 @@ export default function Navbar() {
             fontFamily: 'Space Grotesk, sans-serif',
             fontSize: '0.92rem',
             fontWeight: '800',
-            color: 'var(--t-text-primary)',
+            color: 'var(--t-nav-text-primary)',
             letterSpacing: '0.06em',
             textTransform: 'uppercase',
             display: 'flex',
@@ -89,7 +89,7 @@ export default function Navbar() {
             gap: '0.35rem'
           }} className="brand-text">
             <span style={{ color: 'var(--red-accent)', fontWeight: 'bold' }}>//</span>
-            <span style={{ color: 'var(--t-text-muted)', fontSize: '0.72rem', fontWeight: '500' }}>Dev</span>
+            <span style={{ color: 'var(--t-nav-text-muted)', fontSize: '0.72rem', fontWeight: '500' }}>Dev</span>
           </span>
         </div>
 
@@ -109,7 +109,7 @@ export default function Navbar() {
                     padding: '0.45rem 0.85rem',
                     background: 'transparent',
                     border: 'none',
-                    color: isActive ? 'var(--t-text-primary)' : 'var(--t-text-muted)',
+                    color: isActive ? 'var(--t-nav-text-primary)' : 'var(--t-nav-text-muted)',
                     fontFamily: 'Space Grotesk, sans-serif',
                     fontSize: '0.86rem',
                     fontWeight: isActive ? '700' : '400',
@@ -125,9 +125,9 @@ export default function Navbar() {
                       style={{
                         position: 'absolute',
                         inset: 0,
-                        backgroundColor: 'var(--t-tab-active-bg)',
+                        backgroundColor: 'var(--t-nav-tab-active-bg)',
                         backdropFilter: 'blur(8px)',
-                        border: '1px solid var(--t-tab-active-border)',
+                        border: '1px solid var(--t-nav-tab-active-border)',
                         borderRadius: '6px',
                         zIndex: -1
                       }}
@@ -140,17 +140,23 @@ export default function Navbar() {
             })}
           </nav>
 
-          {/* Theme Toggle */}
+          {/* Creative Non-Glow Theme Toggle */}
           <button
             className="theme-toggle-btn"
             onClick={toggleTheme}
             aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
             title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
           >
-            <div className="theme-toggle-knob">
-              <span className="theme-toggle-icon">
-                {theme === 'dark' ? <FiMoon size={10} /> : <FiSun size={10} />}
+            <div className="theme-toggle-track">
+              <span className={`toggle-track-icon dark ${theme === 'dark' ? 'active' : ''}`}>
+                <FiMoon size={11} />
               </span>
+              <span className={`toggle-track-icon light ${theme === 'light' ? 'active' : ''}`}>
+                <FiSun size={11} />
+              </span>
+            </div>
+            <div className="theme-toggle-knob">
+              {theme === 'dark' ? <FiMoon size={11} /> : <FiSun size={11} />}
             </div>
           </button>
 

@@ -594,26 +594,24 @@ export default function AiAssistant() {
           position: fixed;
           bottom: 30px;
           right: 30px;
-          padding: 0 1.35rem;
           height: 46px;
+          padding: 0 1.25rem;
           border-radius: 8px;
-          background: var(--t-card-bg);
-          border: 1px solid rgba(255, 255, 255, 0.35);
+          background: var(--t-card-bg-solid);
+          border: 1px solid var(--t-border-strong);
           color: var(--t-text-primary);
           display: flex;
           align-items: center;
           justify-content: center;
           cursor: pointer;
-          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 0 0 8px rgba(255, 255, 255, 0.2);
+          box-shadow: var(--t-nav-shadow);
           backdrop-filter: var(--glass-blur);
           -webkit-backdrop-filter: var(--glass-blur);
           transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-          animation: fabWhiteGlowPulse 3s infinite alternate ease-in-out;
         }
 
         .ai-fab-btn:hover:not(.active) {
-          border-color: rgba(255, 255, 255, 0.65);
-          box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45), 0 0 12px rgba(255, 255, 255, 0.4);
+          border-color: var(--red-accent);
           transform: translateY(-2px);
         }
 
@@ -621,18 +619,11 @@ export default function AiAssistant() {
           width: 46px;
           padding: 0;
           border-radius: 8px;
-          border-color: rgba(255, 255, 255, 0.35);
-          animation: fabWhiteGlowPulse 3s infinite alternate ease-in-out;
-        }
-
-        @keyframes fabWhiteGlowPulse {
-          0% { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3), 0 0 5px rgba(255, 255, 255, 0.15); }
-          100% { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 10px rgba(255, 255, 255, 0.3); }
+          border-color: var(--t-border-strong);
         }
 
         .ai-fab-btn.active:hover {
-          border-color: rgba(255, 255, 255, 0.65);
-          box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45), 0 0 12px rgba(255, 255, 255, 0.4);
+          border-color: var(--red-accent);
         }
 
         .ai-fab-text {

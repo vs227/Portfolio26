@@ -28,19 +28,21 @@ export default function MasterCanvasBackground() {
           width: '100%',
           height: '100%',
           objectFit: 'cover',
-          filter: theme === 'dark' ? 'brightness(0.7) contrast(1.02)' : 'brightness(0.95) opacity(0.9)',
+          filter: theme === 'dark'
+            ? 'brightness(0.7) contrast(1.02)'
+            : 'brightness(1.08) contrast(1.02) opacity(0.55)',
           transition: 'filter 0.4s ease'
         }}
       >
         <source src={bckVideo} type="video/mp4" />
       </video>
 
-      {/* Ultra-thin tint overlay for text legibility */}
+      {/* Theme-matched backdrop overlay */}
       <div
         style={{
           position: 'absolute',
           inset: 0,
-          background: theme === 'dark' ? 'rgba(0, 0, 0, 0.12)' : 'rgba(245, 245, 247, 0.12)',
+          background: theme === 'dark' ? 'rgba(0, 0, 0, 0.12)' : 'rgba(244, 246, 248, 0.45)',
           transition: 'background 0.4s ease'
         }}
       />
