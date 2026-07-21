@@ -28,6 +28,7 @@ export default function AiAssistant() {
   const [typingMessageIndex, setTypingMessageIndex] = useState(-1);
 
   const messagesEndRef = useRef(null);
+  const inputRef = useRef(null);
 
   // Auto-show callout callout after 2.5 seconds to capture viewer attention
   useEffect(() => {
@@ -75,6 +76,15 @@ export default function AiAssistant() {
       scrollToBottom();
     }
   }, [messages, isLoading, isOpen]);
+
+  useEffect(() => {
+    if (isOpen && !isLoading) {
+      const timer = setTimeout(() => {
+        inputRef.current?.focus();
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen, isLoading]);
 
   const handleSend = async (text) => {
     const query = text || input;
@@ -467,8 +477,8 @@ export default function AiAssistant() {
             >
               <div className="ai-input-container">
                 <span className="terminal-prompt">&gt;</span>
-                {!input && <span className="blinking-cursor-line" />}
                 <input
+                  ref={inputRef}
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
@@ -497,10 +507,11 @@ export default function AiAssistant() {
           right: 30px;
           width: 290px;
           padding: 1.1rem 1.25rem;
-          border-radius: 16px;
+          border-radius: 8px;
           background: var(--t-card-bg);
-          border: none;
-          box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+          border: 1px solid var(--t-border-strong);
+          border-left: 3px solid var(--red-accent);
+          box-shadow: 0 15px 40px rgba(0, 0, 0, 0.45);
           backdrop-filter: var(--glass-blur);
           -webkit-backdrop-filter: var(--glass-blur);
           z-index: 9998;
@@ -525,7 +536,7 @@ export default function AiAssistant() {
           font-family: var(--font-heading);
           font-size: 0.76rem;
           font-weight: 800;
-          letter-spacing: 0.05em;
+          letter-spacing: 0.08em;
           text-transform: uppercase;
           color: var(--t-text-primary);
           flex: 1;
@@ -561,12 +572,12 @@ export default function AiAssistant() {
 
         .callout-chip-btn {
           padding: 0.35rem 0.75rem;
-          border-radius: 9999px;
+          border-radius: 4px;
           background: rgba(255, 0, 60, 0.08);
-          border: none;
+          border: 1px solid rgba(255, 0, 60, 0.2);
           color: var(--t-text-primary);
           font-family: var(--font-heading);
-          font-size: 0.74rem;
+          font-size: 0.72rem;
           font-weight: 700;
           cursor: pointer;
           transition: all 0.2s ease;
@@ -584,10 +595,10 @@ export default function AiAssistant() {
           bottom: 30px;
           right: 30px;
           padding: 0 1.35rem;
-          height: 48px;
-          border-radius: 24px;
+          height: 46px;
+          border-radius: 8px;
           background: var(--t-card-bg);
-          border: 1.5px solid var(--red-accent);
+          border: 1px solid var(--red-accent);
           color: var(--t-text-primary);
           display: flex;
           align-items: center;
@@ -605,23 +616,35 @@ export default function AiAssistant() {
           100% { box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 25px rgba(255, 0, 60, 0.65); }
         }
 
-        .ai-fab-btn:hover {
+        .ai-fab-btn:hover:not(.active) {
           border-color: var(--red-accent);
           box-shadow: var(--glow-red), 0 12px 35px rgba(255, 0, 60, 0.4);
           transform: translateY(-2px);
         }
 
         .ai-fab-btn.active {
-          width: 48px;
+          width: 46px;
           padding: 0;
-          border-radius: 50%;
+          border-radius: 8px;
+          border-color: rgba(255, 255, 255, 0.35);
+          animation: fabWhiteGlowPulse 3s infinite alternate ease-in-out;
+        }
+
+        @keyframes fabWhiteGlowPulse {
+          0% { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3), 0 0 5px rgba(255, 255, 255, 0.15); }
+          100% { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 10px rgba(255, 255, 255, 0.3); }
+        }
+
+        .ai-fab-btn.active:hover {
+          border-color: rgba(255, 255, 255, 0.65);
+          box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45), 0 0 12px rgba(255, 255, 255, 0.4);
         }
 
         .ai-fab-text {
           font-family: var(--font-heading);
           font-weight: 700;
           font-size: 0.82rem;
-          letter-spacing: 0.05em;
+          letter-spacing: 0.08em;
           text-transform: uppercase;
         }
 
@@ -650,18 +673,19 @@ export default function AiAssistant() {
         /* --- Chat Window --- */
         .ai-chat-window {
           position: fixed;
-          bottom: 95px;
+          bottom: 90px;
           right: 30px;
           top: auto;
           left: auto;
           transform: none;
           width: 390px;
-          height: 530px;
+          height: 540px;
           max-height: 75vh;
-          border-radius: 16px;
+          border-radius: 8px;
           background: var(--t-card-bg);
           border: 1px solid var(--t-border-strong);
-          box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+          border-top: 2px solid var(--red-accent);
+          box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
           backdrop-filter: var(--glass-blur);
           -webkit-backdrop-filter: var(--glass-blur);
           display: flex;
@@ -688,8 +712,8 @@ export default function AiAssistant() {
           width: min(920px, 90vw);
           height: min(820px, 84vh);
           max-height: 84vh;
-          border-radius: 24px;
-          box-shadow: 0 35px 90px rgba(0, 0, 0, 0.75), 0 0 35px var(--glow-red);
+          border-radius: 10px;
+          box-shadow: 0 35px 90px rgba(0, 0, 0, 0.8), 0 0 25px rgba(255, 0, 60, 0.25);
           z-index: 9998;
         }
 
@@ -698,7 +722,7 @@ export default function AiAssistant() {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 0.9rem 1.25rem;
+          padding: 0.85rem 1.2rem;
           border-bottom: 1px solid var(--t-border);
           background: var(--t-bg-alt);
           flex-shrink: 0;
@@ -707,20 +731,20 @@ export default function AiAssistant() {
         .ai-header-title {
           font-family: 'Orbitron', sans-serif;
           font-weight: 900;
-          font-size: 1.05rem;
-          letter-spacing: 0.18em;
+          font-size: 0.95rem;
+          letter-spacing: 0.22em;
           text-transform: uppercase;
           color: var(--t-text-primary);
           margin: 0;
         }
 
         .ai-header-subtitle {
-          font-family: var(--font-body);
-          font-size: 0.68rem;
+          font-family: var(--font-mono);
+          font-size: 0.65rem;
           color: #00ff66;
           margin: 0.1rem 0 0 0;
           font-weight: 600;
-          letter-spacing: 0.05em;
+          letter-spacing: 0.08em;
           text-transform: uppercase;
         }
 
@@ -756,17 +780,20 @@ export default function AiAssistant() {
           background: transparent;
           border: 1px solid var(--t-border);
           color: var(--t-text-muted);
-          font-size: 0.72rem;
+          font-size: 0.68rem;
           padding: 0.2rem 0.5rem;
-          border-radius: 4px;
+          border-radius: 3px;
           cursor: pointer;
-          font-family: var(--font-body);
+          font-family: var(--font-mono);
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
           transition: all 0.2s ease;
         }
 
         .ai-action-btn:hover {
           color: var(--t-text-primary);
-          background: rgba(255, 255, 255, 0.05);
+          background: rgba(255, 255, 255, 0.06);
+          border-color: var(--t-border-strong);
         }
 
         .ai-close-btn {
@@ -780,7 +807,7 @@ export default function AiAssistant() {
         }
 
         .ai-close-btn:hover {
-          color: var(--red-accent);
+          color: var(--t-text-primary);
         }
 
         /* --- Empty Splash Dashboard --- */
@@ -841,8 +868,8 @@ export default function AiAssistant() {
         .ai-dashboard-welcome {
           font-family: var(--font-heading);
           font-weight: 700;
-          font-size: 0.95rem;
-          letter-spacing: 0.05em;
+          font-size: 0.92rem;
+          letter-spacing: 0.08em;
           text-transform: uppercase;
           margin: 0 0 0.4rem 0;
           color: var(--t-text-primary);
@@ -862,12 +889,12 @@ export default function AiAssistant() {
         }
 
         .suggestions-header {
-          font-family: var(--font-heading);
+          font-family: var(--font-mono);
           font-weight: 700;
-          font-size: 0.72rem;
+          font-size: 0.68rem;
           color: var(--t-text-dim);
           text-transform: uppercase;
-          letter-spacing: 0.06em;
+          letter-spacing: 0.08em;
           margin: 0 0 0.65rem 0;
         }
 
@@ -884,7 +911,8 @@ export default function AiAssistant() {
           padding: 0.75rem;
           background: var(--t-badge-bg);
           border: 1px solid var(--t-border-faint);
-          border-radius: 8px;
+          border-left: 2px solid var(--t-border);
+          border-radius: 4px;
           color: var(--t-text-secondary);
           cursor: pointer;
           text-align: left;
@@ -893,7 +921,8 @@ export default function AiAssistant() {
 
         .ai-suggestion-card:hover {
           background: rgba(255, 0, 60, 0.04);
-          border-color: var(--red-accent);
+          border-color: var(--t-border-strong);
+          border-left-color: var(--red-accent);
           transform: translateY(-1px);
         }
 
@@ -950,9 +979,9 @@ export default function AiAssistant() {
         .ai-message-avatar {
           width: 22px;
           height: 22px;
-          border-radius: 50%;
+          border-radius: 4px;
           background: var(--t-badge-bg);
-          border: 1px solid var(--t-border);
+          border: 1px solid var(--t-border-strong);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -967,27 +996,29 @@ export default function AiAssistant() {
         }
 
         .ai-message-bubble {
-          max-width: 78%;
+          max-width: 80%;
           padding: 0.75rem 0.95rem;
-          border-radius: 14px;
+          border-radius: 5px;
           font-size: 0.84rem;
           word-wrap: break-word;
           font-family: var(--font-body);
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
         }
 
         .ai-message-bubble.user {
           background: var(--red-accent);
           color: #ffffff;
-          border-bottom-right-radius: 3px;
-          box-shadow: var(--glow-red);
+          border-radius: 5px;
+          border-bottom-right-radius: 1px;
+          box-shadow: none;
         }
 
         .ai-message-bubble.assistant {
           background: var(--t-badge-bg);
-          border: 1px solid var(--t-border);
+          border: 1px solid var(--t-border-strong);
           color: var(--t-text-secondary);
-          border-bottom-left-radius: 3px;
+          border-radius: 5px;
+          border-bottom-left-radius: 1px;
         }
 
         /* --- Text Custom Formatting --- */
@@ -1017,7 +1048,7 @@ export default function AiAssistant() {
           background: rgba(255, 255, 255, 0.08);
           border: 1px solid var(--t-border);
           padding: 1px 4px;
-          border-radius: 4px;
+          border-radius: 3px;
           color: var(--t-text-primary);
         }
 
@@ -1066,15 +1097,15 @@ export default function AiAssistant() {
           align-items: center;
           gap: 0.45rem;
           background: var(--t-badge-bg);
-          border: 1px solid var(--t-border);
-          border-radius: 8px;
+          border: 1px solid var(--t-border-strong);
+          border-radius: 4px;
           padding: 0.45rem 0.75rem;
           transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
 
         .ai-input-container:focus-within {
           border-color: var(--red-accent);
-          box-shadow: 0 0 10px rgba(255, 0, 60, 0.15);
+          box-shadow: 0 0 8px rgba(255, 0, 60, 0.18);
         }
 
         .terminal-prompt {
@@ -1100,18 +1131,7 @@ export default function AiAssistant() {
           color: var(--t-text-dim);
         }
 
-        .blinking-cursor-line {
-          width: 2px;
-          height: 14px;
-          background-color: var(--red-accent);
-          animation: terminalCursorBlink 1.1s step-end infinite;
-          flex-shrink: 0;
-        }
 
-        @keyframes terminalCursorBlink {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0; }
-        }
 
         .ai-chat-send-btn {
           background: transparent;
