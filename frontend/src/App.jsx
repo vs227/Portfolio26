@@ -3,6 +3,7 @@ import { AnimatePresence } from 'framer-motion';
 import Lenis from 'lenis';
 
 import { ThemeProvider } from './context/ThemeContext';
+import { trackVisitor } from './utils/visitorTracker';
 import MasterLoadingScreen from './components/MasterLoadingScreen';
 import MasterCanvasBackground from './components/MasterCanvasBackground';
 import Navbar from './components/Navbar';
@@ -18,6 +19,10 @@ import AiAssistant from './components/AiAssistant';
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    trackVisitor();
+  }, []);
 
   useEffect(() => {
     // Detect mobile — disable Lenis smooth scroll on touch devices

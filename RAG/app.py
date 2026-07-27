@@ -2,10 +2,14 @@ import os
 import time
 import threading
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, HTTPException
+from dotenv import load_dotenv
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
+import httpx
+
+load_dotenv()
 
 DB_PATH = "faiss_index"
 
@@ -66,6 +70,48 @@ class ChatRequest(BaseModel):
     message: str
     history: List[ChatMessage]
 
+class VisitorLog(BaseModel):
+    ip: str = "Unknown"
+    city: str = "Unknown"
+    region: str = "Unknown"
+    country: str = "Unknown"
+    countryCode: str = ""
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    timezone: str = "Unknown"
+    isp: str = "Unknown"
+    userAgent: str = "Unknown"
+    language: str = "Unknown"
+    platform: str = "Unknown"
+    screenResolution: str = "Unknown"
+    referrer: str = "Direct"
+    pageUrl: str = ""
+    timestamp: str = ""
+
+# ── Telegram notification helper ──
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
+TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
+
+async def _send_telegram(message: str):
+    """Fire-and-forget Telegram message via Bot API."""
+    if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
+        print("[visitor] Telegram credentials not configured, skipping notification.", flush=True)
+        return
+    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+    payload = {
+        "chat_id": TELEGRAM_CHAT_ID,
+        "text": message,
+        "parse_mode": "HTML",
+        "disable_web_page_preview": True
+    }
+    try:
+        async with httpx.AsyncClient(timeout=10) as client:
+            resp = await client.post(url, json=payload)
+            if resp.status_code != 200:
+                print(f"[visitor] Telegram API error: {resp.status_code} {resp.text}", flush=True)
+    except Exception as e:
+        print(f"[visitor] Failed to send Telegram notification: {e}", flush=True)
+
 @app.post("/api/chat")
 async def chat_endpoint(request: ChatRequest):
     # Wait up to 300s for background model loading to finish
@@ -89,6 +135,64 @@ async def chat_endpoint(request: ChatRequest):
         return {"response": response}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/visitor-log")
+async def visitor_log(data: VisitorLog, request: Request):
+    """Receive visitor info from the frontend and send a Telegram notification."""
+    # Build a clean, readable notification message
+    # Detect browser from user-agent (simplified)
+    ua = data.userAgent
+    browser = "Unknown"
+    if "Edg/" in ua:
+        browser = "Edge"
+    elif "Chrome/" in ua:
+        browser = "Chrome"
+    elif "Firefox/" in ua:
+        browser = "Firefox"
+    elif "Safari/" in ua:
+        browser = "Safari"
+    elif "Opera" in ua or "OPR/" in ua:
+        browser = "Opera"
+
+    # Detect OS
+    os_name = "Unknown"
+    if "Windows" in ua:
+        os_name = "Windows"
+    elif "Mac OS" in ua:
+        os_name = "macOS"
+    elif "Android" in ua:
+        os_name = "Android"
+    elif "iPhone" in ua or "iPad" in ua:
+        os_name = "iOS"
+    elif "Linux" in ua:
+        os_name = "Linux"
+
+    # Google Maps link if coordinates available
+    maps_link = ""
+    if data.latitude and data.longitude:
+        maps_link = f"\n🗺️ <a href='https://www.google.com/maps?q={data.latitude},{data.longitude}'>View on Google Maps</a>"
+
+    message = (
+        f"🚨 <b>New Portfolio Visitor</b>\n"
+        f"{'━' * 28}\n"
+        f"\n"
+        f"🌐 <b>IP:</b>  <code>{data.ip}</code>\n"
+        f"📍 <b>Location:</b>  {data.city}, {data.region}, {data.country} {data.countryCode}\n"
+        f"🏢 <b>ISP:</b>  {data.isp}\n"
+        f"🕐 <b>Timezone:</b>  {data.timezone}\n"
+        f"{maps_link}\n"
+        f"\n"
+        f"🖥️ <b>Browser:</b>  {browser} on {os_name}\n"
+        f"📐 <b>Screen:</b>  {data.screenResolution}\n"
+        f"🌍 <b>Language:</b>  {data.language}\n"
+        f"🔗 <b>Referrer:</b>  {data.referrer}\n"
+        f"\n"
+        f"🕑 <b>Time:</b>  {data.timestamp}\n"
+    )
+
+    # Send notification (non-blocking intent, but we await for clean error handling)
+    await _send_telegram(message)
+    return {"status": "ok"}
 
 @app.get("/")
 async def root():
