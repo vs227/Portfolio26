@@ -21,28 +21,28 @@ function CyberCore3D({ isDark, isMobile }) {
 
   // Theme-aware color palette
   const colors = useMemo(() => ({
-    redAccent: isDark ? '#FF003C' : '#DC0032',
-    wireframe: isDark ? '#FFFFFF' : '#1A1A2E',
-    wireframeOpacity: isDark ? 0.3 : 0.25,
-    ring1Color: isDark ? '#FFFFFF' : '#1A1A2E',
-    ring1Opacity: isDark ? 0.6 : 0.45,
-    ring3Color: isDark ? '#888890' : '#555566',
-    ring3Opacity: isDark ? 0.35 : 0.3,
-    connectorColor: isDark ? '#FFFFFF' : '#1A1A2E',
-    connectorOpacity: isDark ? 0.25 : 0.18,
-    nodeNeutralColor: isDark ? '#FFFFFF' : '#1A1A2E',
-    nodeNeutralEmissive: isDark ? '#222222' : '#111118',
-    particleColor: isDark ? '#FFFFFF' : '#1A1A2E',
-    particleOpacity: isDark ? 0.6 : 0.35,
-    labelBg: isDark ? 'rgba(0, 0, 0, 0.78)' : 'rgba(255, 255, 255, 0.9)',
-    labelShadow: isDark ? '0 4px 14px rgba(0, 0, 0, 0.8)' : '0 4px 14px rgba(0, 0, 0, 0.12)',
-    labelBorder: isDark ? 'none' : '1px solid rgba(0, 0, 0, 0.08)',
-    labelNeutralText: isDark ? '#FFFFFF' : '#1A1A2E',
-    cubeEmissive: isDark ? '#550012' : '#880020',
-    cubeEmissiveIntensity: isDark ? 0.6 : 0.8,
-    ambientIntensity: isDark ? 0.6 : 1.0,
-    directionalIntensity: isDark ? 2.2 : 2.8,
-    frontFillIntensity: isDark ? 1.2 : 1.5,
+    redAccent: isDark ? '#FF003C' : '#4F46E5', // Primary Indigo
+    wireframe: isDark ? '#FFFFFF' : '#4F46E5',
+    wireframeOpacity: isDark ? 0.3 : 0.18,
+    ring1Color: isDark ? '#FFFFFF' : '#EC4899', // Secondary Pink
+    ring1Opacity: isDark ? 0.6 : 0.65,
+    ring3Color: isDark ? '#888890' : '#06B6D4', // Accent Cyan
+    ring3Opacity: isDark ? 0.35 : 0.5,
+    connectorColor: isDark ? '#FFFFFF' : '#4F46E5',
+    connectorOpacity: isDark ? 0.25 : 0.22,
+    nodeNeutralColor: isDark ? '#FFFFFF' : '#06B6D4', // Accent Cyan
+    nodeNeutralEmissive: isDark ? '#222222' : '#022D35',
+    particleColor: isDark ? '#FFFFFF' : '#EC4899', // Pink particles
+    particleOpacity: isDark ? 0.6 : 0.5,
+    labelBg: isDark ? 'rgba(0, 0, 0, 0.78)' : 'rgba(238, 246, 255, 0.9)', // Theme Bg
+    labelShadow: isDark ? '0 4px 14px rgba(0, 0, 0, 0.8)' : '0 4px 14px rgba(79, 70, 229, 0.08)',
+    labelBorder: isDark ? 'none' : '1px solid rgba(79, 70, 229, 0.15)',
+    labelNeutralText: isDark ? '#FFFFFF' : '#111827', // Text
+    cubeEmissive: isDark ? '#550012' : '#2A1A80',
+    cubeEmissiveIntensity: isDark ? 0.6 : 0.7,
+    ambientIntensity: isDark ? 0.6 : 1.1,
+    directionalIntensity: isDark ? 2.2 : 2.5,
+    frontFillIntensity: isDark ? 1.2 : 1.4,
   }), [isDark]);
 
   useFrame((state, delta) => {

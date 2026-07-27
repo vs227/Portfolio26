@@ -91,94 +91,104 @@
   --t-category-btn-bg: rgba(12, 12, 16, 0.8);
   --t-glow-hover: 0 0 20px rgba(255, 255, 255, 0.08);
   --t-card-shadow-hover: 0 16px 45px rgba(0, 0, 0, 0.95), 0 0 20px rgba(255, 255, 255, 0.08);
+
+  /* Helper tokens for dynamic opacity in components */
+  --t-accent-faint: rgba(255, 0, 60, 0.08);
+  --t-accent-border: rgba(255, 0, 60, 0.2);
+  --t-accent-glow: 0 4px 15px rgba(255, 0, 60, 0.25);
 }
 
 [data-theme="light"] {
 
-  --bg-dark: #F4F6F8;
+  --bg-dark: #EEF6FF;
   --bg-card-glass: rgba(255, 255, 255, 0.92);
-  --bg-card-hover: #F8FAFC;
+  --bg-card-hover: #F5ECFF;
 
-  --border-subtle: #E2E8F0;
-  --border-red: rgba(225, 29, 72, 0.35);
-  --border-white: #E2E8F0;
+  --border-subtle: rgba(79, 70, 229, 0.12);
+  --border-red: rgba(79, 70, 229, 0.35);
+  --border-white: rgba(79, 70, 229, 0.15);
 
-  --red-accent: #E11D48;
-  --red-dark: #BE123C;
-  --text-white: #0F172A;
-  --text-grey-light: #334155;
-  --text-grey-mid: #475569;
-  --text-grey-muted: #64748B;
-  --bg-grey-dark: #E2E8F0;
+  --red-accent: #4F46E5;
+  --red-dark: #3730A3;
+  --text-white: #111827;
+  --text-grey-light: #374151;
+  --text-grey-mid: #4B5563;
+  --text-grey-muted: #6B7280;
+  --bg-grey-dark: #EEF6FF;
 
-  --glow-white: 0 4px 20px rgba(0, 0, 0, 0.05);
-  --glow-red: 0 4px 15px rgba(225, 29, 72, 0.2);
+  --glow-white: 0 4px 20px rgba(79, 70, 229, 0.05);
+  --glow-red: 0 4px 15px rgba(79, 70, 229, 0.2);
   --glass-blur: blur(24px);
 
   /* ── Theme-aware tokens ── */
-  --t-bg: #F4F6F8;
-  --t-bg-alt: #E2E8F0;
-  --t-text-primary: #0F172A;
-  --t-text-secondary: #475569;
-  --t-text-muted: #64748B;
-  --t-text-dim: #94A3B8;
-  --t-card-bg: #FFFFFF;
+  --t-bg: #EEF6FF;
+  --t-bg-alt: #F5ECFF;
+  --t-text-primary: #111827;
+  --t-text-secondary: #374151;
+  --t-text-muted: #4B5563;
+  --t-text-dim: #6B7280;
+  --t-card-bg: rgba(255, 255, 255, 0.88);
   --t-card-bg-solid: #FFFFFF;
-  --t-card-hover-bg: #F8FAFC;
-  --t-border: #E2E8F0;
-  --t-border-strong: #CBD5E1;
-  --t-border-faint: #F1F5F9;
+  --t-card-hover-bg: rgba(255, 255, 255, 0.96);
+  --t-border: rgba(79, 70, 229, 0.15);
+  --t-border-strong: rgba(79, 70, 229, 0.3);
+  --t-border-faint: rgba(79, 70, 229, 0.06);
   --t-input-bg: #FFFFFF;
-  --t-input-border: #E2E8F0;
-  --t-badge-bg: #F8FAFC;
-  --t-badge-border: #E2E8F0;
-  --t-nav-bg: rgba(24, 28, 36, 0.92);
-  --t-nav-bg-transparent: rgba(28, 33, 44, 0.78);
-  --t-nav-border: rgba(255, 255, 255, 0.12);
-  --t-nav-text-primary: #F8FAFC;
-  --t-nav-text-muted: #94A3B8;
-  --t-nav-tab-active-bg: rgba(255, 255, 255, 0.12);
-  --t-nav-tab-active-border: rgba(255, 255, 255, 0.2);
-  --t-nav-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.35), inset 0 -1px 0 0 rgba(255, 255, 255, 0.08);
-  --t-nav-shadow-rest: 0 4px 20px rgba(0, 0, 0, 0.2), inset 0 -1px 0 0 rgba(255, 255, 255, 0.05);
-  --t-tab-active-bg: #F8FAFC;
-  --t-tab-active-border: #CBD5E1;
-  --t-mobile-menu-bg: rgba(24, 28, 36, 0.95);
-  --t-overlay-bg: rgba(244, 246, 248, 0.88);
-  --t-hero-stat-bg: #FFFFFF;
-  --t-hero-stat-border: #E2E8F0;
-  --t-btn-primary-bg: #0F172A;
+  --t-input-border: rgba(79, 70, 229, 0.15);
+  --t-badge-bg: rgba(79, 70, 229, 0.05);
+  --t-badge-border: rgba(79, 70, 229, 0.15);
+  --t-nav-bg: rgba(238, 246, 255, 0.85);
+  --t-nav-bg-transparent: rgba(238, 246, 255, 0.6);
+  --t-nav-border: rgba(79, 70, 229, 0.15);
+  --t-nav-text-primary: #111827;
+  --t-nav-text-muted: #6B7280;
+  --t-nav-tab-active-bg: rgba(79, 70, 229, 0.08);
+  --t-nav-tab-active-border: rgba(79, 70, 229, 0.2);
+  --t-nav-shadow: 0 10px 30px -5px rgba(79, 70, 229, 0.1), inset 0 -1px 0 0 rgba(255, 255, 255, 0.5);
+  --t-nav-shadow-rest: 0 4px 20px rgba(79, 70, 229, 0.05), inset 0 -1px 0 0 rgba(255, 255, 255, 0.3);
+  --t-tab-active-bg: #FFFFFF;
+  --t-tab-active-border: #4F46E5;
+  --t-mobile-menu-bg: rgba(238, 246, 255, 0.95);
+  --t-overlay-bg: rgba(238, 246, 255, 0.85);
+  --t-hero-stat-bg: rgba(255, 255, 255, 0.75);
+  --t-hero-stat-border: rgba(79, 70, 229, 0.12);
+  --t-btn-primary-bg: #4F46E5;
   --t-btn-primary-text: #FFFFFF;
-  --t-btn-secondary-bg: #F8FAFC;
-  --t-btn-secondary-border: #E2E8F0;
-  --t-btn-ghost-bg: #FFFFFF;
-  --t-btn-ghost-border: #E2E8F0;
-  --t-footer-bg: #F4F6F8;
-  --t-footer-border: #E2E8F0;
-  --t-scrollbar-track: #F4F6F8;
-  --t-scrollbar-thumb: #CBD5E1;
-  --t-selection-bg: rgba(225, 29, 72, 0.15);
-  --t-selection-text: #0F172A;
-  --t-gradient-start: #0F172A;
-  --t-gradient-end: #475569;
+  --t-btn-secondary-bg: rgba(255, 255, 255, 0.8);
+  --t-btn-secondary-border: rgba(79, 70, 229, 0.2);
+  --t-btn-ghost-bg: transparent;
+  --t-btn-ghost-border: rgba(79, 70, 229, 0.25);
+  --t-footer-bg: #EEF6FF;
+  --t-footer-border: rgba(79, 70, 229, 0.12);
+  --t-scrollbar-track: #EEF6FF;
+  --t-scrollbar-thumb: rgba(79, 70, 229, 0.25);
+  --t-selection-bg: rgba(79, 70, 229, 0.15);
+  --t-selection-text: #111827;
+  --t-gradient-start: #4F46E5;
+  --t-gradient-end: #EC4899;
   --t-timeline-node-bg: #FFFFFF;
-  --t-dot-default: #94A3B8;
-  --t-skill-icon: #0F172A;
-  --t-skill-name: #334155;
-  --t-grid-line: rgba(0, 0, 0, 0.035);
-  --t-particle-default: rgba(0, 0, 0, 0.15);
-  --t-canvas-glow-start: rgba(225, 29, 72, 0.04);
-  --t-scanline: rgba(0, 0, 0, 0.015);
-  --t-connector-line: rgba(0, 0, 0, 0.06);
-  --t-tag-bg: #F8FAFC;
-  --t-tag-border: #E2E8F0;
-  --t-separator: #E2E8F0;
-  --t-experience-line: #E2E8F0;
+  --t-dot-default: #06B6D4;
+  --t-skill-icon: #4F46E5;
+  --t-skill-name: #111827;
+  --t-grid-line: rgba(79, 70, 229, 0.02);
+  --t-particle-default: rgba(6, 182, 212, 0.3);
+  --t-canvas-glow-start: rgba(6, 182, 212, 0.08);
+  --t-scanline: rgba(79, 70, 229, 0.015);
+  --t-connector-line: rgba(79, 70, 229, 0.15);
+  --t-tag-bg: rgba(79, 70, 229, 0.04);
+  --t-tag-border: rgba(79, 70, 229, 0.12);
+  --t-separator: rgba(79, 70, 229, 0.1);
+  --t-experience-line: rgba(79, 70, 229, 0.15);
   --t-experience-dot-bg: #FFFFFF;
-  --t-divider-faint: #F1F5F9;
+  --t-divider-faint: rgba(79, 70, 229, 0.08);
   --t-category-btn-bg: #FFFFFF;
-  --t-glow-hover: 0 10px 30px rgba(0, 0, 0, 0.04);
-  --t-card-shadow-hover: 0 20px 40px -10px rgba(0, 0, 0, 0.06), 0 0 1px rgba(0, 0, 0, 0.08);
+  --t-glow-hover: 0 10px 30px rgba(79, 70, 229, 0.05);
+  --t-card-shadow-hover: 0 20px 40px -10px rgba(79, 70, 229, 0.06), 0 0 1px rgba(79, 70, 229, 0.08);
+
+  /* Helper tokens for dynamic opacity in components */
+  --t-accent-faint: rgba(79, 70, 229, 0.08);
+  --t-accent-border: rgba(79, 70, 229, 0.2);
+  --t-accent-glow: 0 4px 15px rgba(79, 70, 229, 0.18);
 }
 
 * {

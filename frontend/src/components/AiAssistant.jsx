@@ -287,7 +287,9 @@ export default function AiAssistant() {
                   height: '20px',
                   width: 'auto',
                   objectFit: 'contain',
-                  filter: 'brightness(0) saturate(100%) invert(16%) sepia(99%) saturate(7404%) hue-rotate(346deg) brightness(101%) contrast(106%)',
+                  filter: theme === 'light'
+                    ? 'brightness(0) saturate(100%) invert(26%) sepia(87%) saturate(2256%) hue-rotate(233deg) brightness(96%) contrast(92%)'
+                    : 'brightness(0) saturate(100%) invert(16%) sepia(99%) saturate(7404%) hue-rotate(346deg) brightness(101%) contrast(106%)',
                   transition: 'filter 0.3s ease'
                 }}
               />
@@ -573,8 +575,8 @@ export default function AiAssistant() {
         .callout-chip-btn {
           padding: 0.35rem 0.75rem;
           border-radius: 4px;
-          background: rgba(255, 0, 60, 0.08);
-          border: 1px solid rgba(255, 0, 60, 0.2);
+          background: var(--t-accent-faint);
+          border: 1px solid var(--t-accent-border);
           color: var(--t-text-primary);
           font-family: var(--font-heading);
           font-size: 0.72rem;
@@ -699,7 +701,7 @@ export default function AiAssistant() {
           height: min(820px, 84vh);
           max-height: 84vh;
           border-radius: 10px;
-          box-shadow: 0 35px 90px rgba(0, 0, 0, 0.8), 0 0 25px rgba(255, 0, 60, 0.25);
+          box-shadow: 0 35px 90px rgba(0, 0, 0, 0.35), var(--t-accent-glow);
           z-index: 9998;
         }
 
@@ -906,7 +908,7 @@ export default function AiAssistant() {
         }
 
         .ai-suggestion-card:hover {
-          background: rgba(255, 0, 60, 0.04);
+          background: var(--t-accent-faint);
           border-color: var(--t-border-strong);
           border-left-color: var(--red-accent);
           transform: translateY(-1px);
@@ -978,7 +980,7 @@ export default function AiAssistant() {
         .ai-message-avatar.user {
           border-color: var(--red-accent);
           color: var(--red-accent);
-          background: rgba(255, 0, 60, 0.05);
+          background: var(--t-accent-faint);
         }
 
         .ai-message-bubble {
@@ -1091,7 +1093,7 @@ export default function AiAssistant() {
 
         .ai-input-container:focus-within {
           border-color: var(--red-accent);
-          box-shadow: 0 0 8px rgba(255, 0, 60, 0.18);
+          box-shadow: var(--t-accent-glow);
         }
 
         .terminal-prompt {

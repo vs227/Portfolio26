@@ -56,7 +56,7 @@ export default function EducationSection() {
                   flexDirection: 'column',
                   justifyContent: 'space-between',
                   border: isHovered ? '1px solid var(--red-accent)' : '1px solid var(--t-border-faint)',
-                  boxShadow: isHovered ? '0 8px 25px rgba(255, 0, 60, 0.08)' : 'none',
+                  boxShadow: isHovered ? 'var(--t-accent-glow)' : 'none',
                   backgroundColor: 'var(--t-card-bg-solid)',
                   boxSizing: 'border-box',
                   transition: 'border-color 0.25s ease, box-shadow 0.25s ease'
@@ -71,8 +71,8 @@ export default function EducationSection() {
                       width: '34px',
                       height: '34px',
                       borderRadius: '50%',
-                      backgroundColor: isHovered ? 'rgba(255, 0, 60, 0.05)' : 'var(--t-tag-bg)',
-                      border: isHovered ? '1px solid rgba(255, 0, 60, 0.2)' : '1px solid var(--t-tag-border)',
+                      backgroundColor: isHovered ? 'var(--t-accent-faint)' : 'var(--t-tag-bg)',
+                      border: isHovered ? '1px solid var(--t-accent-border)' : '1px solid var(--t-tag-border)',
                       color: isHovered ? 'var(--red-accent)' : 'var(--t-text-muted)',
                       transition: 'all 0.25s ease'
                     }}>

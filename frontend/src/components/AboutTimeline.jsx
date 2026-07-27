@@ -132,7 +132,7 @@ export default function AboutTimeline() {
                     alignItems: 'center',
                     justifyContent: 'center',
                     color: isBTech ? 'var(--red-accent)' : 'var(--t-text-muted)',
-                    boxShadow: isBTech ? '0 0 12px rgba(255, 0, 60, 0.35)' : 'none',
+                    boxShadow: isBTech ? 'var(--glow-red)' : 'none',
                     zIndex: 2,
                     position: 'relative',
                     transition: 'all 0.3s ease'
@@ -145,8 +145,8 @@ export default function AboutTimeline() {
                   className="master-glass-card timeline-card"
                   style={{
                     padding: '1.25rem 1.4rem',
-                    border: isBTech ? '1px solid rgba(255, 0, 60, 0.2)' : '1px solid var(--t-border-faint)',
-                    boxShadow: isBTech ? '0 5px 15px rgba(255, 0, 60, 0.02)' : 'none',
+                    border: isBTech ? '1px solid var(--border-red)' : '1px solid var(--t-border-faint)',
+                    boxShadow: isBTech ? 'var(--glow-red)' : 'none',
                     boxSizing: 'border-box',
                     textAlign: 'left'
                   }}

@@ -75,7 +75,7 @@ export default function FeaturedProjects() {
                 animate={{
                   y: isHovered ? -5 : 0,
                   borderColor: isHovered ? 'var(--red-accent)' : 'var(--t-border-faint)',
-                  boxShadow: isHovered ? '0 12px 30px rgba(255, 0, 60, 0.08)' : 'none'
+                  boxShadow: isHovered ? 'var(--t-accent-glow)' : 'none'
                 }}
                 transition={{ duration: 0.25, ease: 'easeOut' }}
                 className="master-glass-card"

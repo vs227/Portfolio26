@@ -117,96 +117,96 @@ export default function SkillsGrid() {
           >
             <AnimatePresence mode="popLayout">
               {displayedSkills.map((skill) => {
-              const isHovered = hoveredSkill === skill.name;
-              return (
-                <motion.div
-                  layout
-                  key={skill.name}
-                  initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.92, y: 6 }}
-                  onMouseEnter={() => setHoveredSkill(skill.name)}
-                  onMouseLeave={() => setHoveredSkill(null)}
-                  whileHover={{ y: -4 }}
-                  transition={{ type: 'spring', stiffness: 380, damping: 28 }}
-                  className="master-glass-card"
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                    padding: '1rem 1.25rem',
-                    borderRadius: '8px',
-                    border: isHovered ? '1px solid var(--red-accent)' : '1px solid var(--t-border-faint)',
-                    boxShadow: isHovered ? '0 8px 25px rgba(255, 0, 60, 0.12)' : 'none',
-                    cursor: 'default',
-                    position: 'relative',
-                    overflow: 'hidden',
-                    transition: 'border-color 0.25s ease, box-shadow 0.25s ease'
-                  }}
-                >
-                  <div style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    background: 'radial-gradient(circle at center, rgba(255, 0, 60, 0.05) 0%, transparent 80%)',
-                    opacity: isHovered ? 1 : 0,
-                    pointerEvents: 'none',
-                    transition: 'opacity 0.25s ease',
-                    zIndex: 1
-                  }} />
-
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.65rem', position: 'relative', zIndex: 2 }}>
-                    <span style={{
-                      fontSize: '0.58rem',
-                      color: isHovered ? 'var(--t-text-muted)' : 'var(--t-text-dim)',
-                      fontWeight: '700',
-                      fontFamily: 'Space Grotesk',
-                      letterSpacing: '0.04em',
-                      transition: 'color 0.25s ease'
-                    }}>
-                      {skill.code}
-                    </span>
-                    <span style={{
-                      width: '5px',
-                      height: '5px',
-                      borderRadius: '50%',
-                      backgroundColor: isHovered ? 'var(--red-accent)' : 'var(--t-dot-default)',
-                      boxShadow: isHovered ? '0 0 6px var(--red-accent)' : 'none',
-                      transition: 'all 0.25s ease'
-                    }} />
-                  </div>
-
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', position: 'relative', zIndex: 2 }}>
-                    <div style={{
+                const isHovered = hoveredSkill === skill.name;
+                return (
+                  <motion.div
+                    layout
+                    key={skill.name}
+                    initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.92, y: 6 }}
+                    onMouseEnter={() => setHoveredSkill(skill.name)}
+                    onMouseLeave={() => setHoveredSkill(null)}
+                    whileHover={{ y: -4 }}
+                    transition={{ type: 'spring', stiffness: 380, damping: 28 }}
+                    className="master-glass-card"
+                    style={{
                       display: 'flex',
-                      alignItems: 'center',
+                      flexDirection: 'column',
                       justifyContent: 'center',
-                      color: isHovered ? 'var(--red-accent)' : 'var(--t-skill-icon)',
-                      transition: 'color 0.25s ease'
-                    }}>
-                      {skill.icon}
-                    </div>
-                    <span style={{
-                      fontSize: '0.9rem',
-                      fontWeight: '700',
-                      color: isHovered ? 'var(--t-text-primary)' : 'var(--t-skill-name)',
-                      fontFamily: 'Space Grotesk, sans-serif',
-                      letterSpacing: '-0.01em',
-                      whiteSpace: 'nowrap',
+                      padding: '1rem 1.25rem',
+                      borderRadius: '8px',
+                      border: isHovered ? '1px solid var(--red-accent)' : '1px solid var(--t-border-faint)',
+                      boxShadow: isHovered ? 'var(--t-accent-glow)' : 'none',
+                      cursor: 'default',
+                      position: 'relative',
                       overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      transition: 'color 0.25s ease'
-                    }}>
-                      {skill.name}
-                    </span>
-                  </div>
+                      transition: 'border-color 0.25s ease, box-shadow 0.25s ease'
+                    }}
+                  >
+                    <div style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      background: 'radial-gradient(circle at center, var(--t-accent-faint) 0%, transparent 80%)',
+                      opacity: isHovered ? 1 : 0,
+                      pointerEvents: 'none',
+                      transition: 'opacity 0.25s ease',
+                      zIndex: 1
+                    }} />
 
-                </motion.div>
-              );
-            })}
-          </AnimatePresence>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.65rem', position: 'relative', zIndex: 2 }}>
+                      <span style={{
+                        fontSize: '0.58rem',
+                        color: isHovered ? 'var(--t-text-muted)' : 'var(--t-text-dim)',
+                        fontWeight: '700',
+                        fontFamily: 'Space Grotesk',
+                        letterSpacing: '0.04em',
+                        transition: 'color 0.25s ease'
+                      }}>
+                        {skill.code}
+                      </span>
+                      <span style={{
+                        width: '5px',
+                        height: '5px',
+                        borderRadius: '50%',
+                        backgroundColor: isHovered ? 'var(--red-accent)' : 'var(--t-dot-default)',
+                        boxShadow: isHovered ? '0 0 6px var(--red-accent)' : 'none',
+                        transition: 'all 0.25s ease'
+                      }} />
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', position: 'relative', zIndex: 2 }}>
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: isHovered ? 'var(--red-accent)' : 'var(--t-skill-icon)',
+                        transition: 'color 0.25s ease'
+                      }}>
+                        {skill.icon}
+                      </div>
+                      <span style={{
+                        fontSize: '0.9rem',
+                        fontWeight: '700',
+                        color: isHovered ? 'var(--t-text-primary)' : 'var(--t-skill-name)',
+                        fontFamily: 'Space Grotesk, sans-serif',
+                        letterSpacing: '-0.01em',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        transition: 'color 0.25s ease'
+                      }}>
+                        {skill.name}
+                      </span>
+                    </div>
+
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
           </motion.div>
           {isMobile && !isExpanded && filteredSkills.length > 8 && (
             <div className="skills-grid-overlay" />
@@ -302,13 +302,13 @@ export default function SkillsGrid() {
           transition: all 0.25s ease;
           outline: none;
           margin-top: 2rem;
-          box-shadow: 0 0 12px rgba(255, 0, 60, 0.1);
+          box-shadow: var(--t-accent-glow);
         }
 
         .skills-expand-btn:hover {
           background-color: var(--red-accent);
           color: #FFFFFF;
-          box-shadow: 0 0 20px rgba(255, 0, 60, 0.35);
+          box-shadow: var(--t-accent-glow);
         }
 
         @media (max-width: 768px) {
