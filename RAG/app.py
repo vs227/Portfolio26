@@ -175,7 +175,40 @@ async def contact_endpoint(data: ContactRequest):
 @app.post("/api/visitor-log")
 async def visitor_log(data: VisitorLog, request: Request):
     """Receive visitor info from the frontend and send a Telegram notification."""
-    # Build a clean, readable notification message
+    # ── Get the real client IP from proxy headers (Vercel/Cloudflare/Render) ──
+    real_ip = (
+        request.headers.get("x-forwarded-for", "").split(",")[0].strip()
+        or request.headers.get("x-real-ip", "")
+        or request.client.host if request.client else "Unknown"
+    )
+
+    # ── Server-side geolocation using ip-api.com (more accurate) ──
+    geo_city = data.city
+    geo_region = data.region
+    geo_country = data.country
+    geo_country_code = data.countryCode
+    geo_isp = data.isp
+    geo_timezone = data.timezone
+    geo_lat = data.latitude
+    geo_lon = data.longitude
+
+    try:
+        async with httpx.AsyncClient(timeout=6) as client:
+            geo_resp = await client.get(f"http://ip-api.com/json/{real_ip}?fields=status,city,regionName,country,countryCode,lat,lon,timezone,isp,org")
+            if geo_resp.status_code == 200:
+                geo = geo_resp.json()
+                if geo.get("status") == "success":
+                    geo_city = geo.get("city", geo_city)
+                    geo_region = geo.get("regionName", geo_region)
+                    geo_country = geo.get("country", geo_country)
+                    geo_country_code = geo.get("countryCode", geo_country_code)
+                    geo_isp = geo.get("isp") or geo.get("org", geo_isp)
+                    geo_timezone = geo.get("timezone", geo_timezone)
+                    geo_lat = geo.get("lat", geo_lat)
+                    geo_lon = geo.get("lon", geo_lon)
+    except Exception as e:
+        print(f"[visitor] Server-side geo lookup failed: {e}", flush=True)
+
     # Detect browser from user-agent (simplified)
     ua = data.userAgent
     browser = "Unknown"
@@ -205,17 +238,17 @@ async def visitor_log(data: VisitorLog, request: Request):
 
     # Google Maps link if coordinates available
     maps_link = ""
-    if data.latitude and data.longitude:
-        maps_link = f"\n🗺️ <a href='https://www.google.com/maps?q={data.latitude},{data.longitude}'>View on Google Maps</a>"
+    if geo_lat and geo_lon:
+        maps_link = f"\n🗺️ <a href='https://www.google.com/maps?q={geo_lat},{geo_lon}'>View on Google Maps</a>"
 
     message = (
         f"🚨 <b>New Portfolio Visitor</b>\n"
         f"{'━' * 28}\n"
         f"\n"
-        f"🌐 <b>IP:</b>  <code>{data.ip}</code>\n"
-        f"📍 <b>Location:</b>  {data.city}, {data.region}, {data.country} {data.countryCode}\n"
-        f"🏢 <b>ISP:</b>  {data.isp}\n"
-        f"🕐 <b>Timezone:</b>  {data.timezone}\n"
+        f"🌐 <b>IP:</b>  <code>{real_ip}</code>\n"
+        f"📍 <b>Location:</b>  {geo_city}, {geo_region}, {geo_country} {geo_country_code}\n"
+        f"🏢 <b>ISP:</b>  {geo_isp}\n"
+        f"🕐 <b>Timezone:</b>  {geo_timezone}\n"
         f"{maps_link}\n"
         f"\n"
         f"🖥️ <b>Browser:</b>  {browser} on {os_name}\n"
@@ -226,7 +259,7 @@ async def visitor_log(data: VisitorLog, request: Request):
         f"🕑 <b>Time:</b>  {data.timestamp}\n"
     )
 
-    # Send notification (non-blocking intent, but we await for clean error handling)
+    # Send notification
     await _send_telegram(message)
     return {"status": "ok"}
 
