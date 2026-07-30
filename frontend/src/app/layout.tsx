@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import CopyProtection from "@/components/CopyProtection";
 
 export const metadata: Metadata = {
   title: "Vaishnav Shinde — Intelligent Systems Developer",
@@ -7,5 +8,12 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body>{children}</body></html>;
+  return (
+    <html lang="en">
+      <body style={{ userSelect: "none", WebkitUserSelect: "none" }}>
+        <CopyProtection />
+        {children}
+      </body>
+    </html>
+  );
 }
