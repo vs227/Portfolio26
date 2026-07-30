@@ -10,6 +10,7 @@ import SmoothScroll from "@/components/SmoothScroll";
 import { FiGithub, FiLinkedin } from "react-icons/fi";
 import AiAssistant from "@/components/AiAssistant";
 import ContactForm from "@/components/ContactForm";
+import { trackVisitor } from "@/utils/visitorTracker";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -51,6 +52,7 @@ export default function Home() {
 
   useEffect(() => {
     setLoaded(true);
+    trackVisitor();
     const ctx = gsap.context(() => {
       gsap.utils.toArray<HTMLElement>(".reveal").forEach((element) => {
         gsap.fromTo(
