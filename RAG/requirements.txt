@@ -9,3 +9,5 @@ langchain-huggingface
 python-dotenv
 huggingface-hub
 httpx
+fastapi
+uvicorn

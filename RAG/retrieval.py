@@ -10,7 +10,7 @@ _db = None
 _llm = None
 
 def get_vector_db(db_path: str):
-    """Load FAISS vector DB using HuggingFace Inference API for embeddings (no PyTorch needed)."""
+    """Load FAISS vector DB using HuggingFace Inference API for embeddings."""
     from langchain_huggingface import HuggingFaceEndpointEmbeddings
     from langchain_community.vectorstores import FAISS
     global _embeddings, _db

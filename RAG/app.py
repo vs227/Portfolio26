@@ -1,6 +1,9 @@
 import os
 import time
 import threading
+import asyncio
+import smtplib
+from email.message import EmailMessage
 from contextlib import asynccontextmanager
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request
@@ -70,6 +73,10 @@ class ChatRequest(BaseModel):
     message: str
     history: List[ChatMessage]
 
+class ContactRequest(BaseModel):
+    name: str
+    email: str
+    message: str
 class VisitorLog(BaseModel):
     ip: str = "Unknown"
     city: str = "Unknown"
@@ -136,6 +143,35 @@ async def chat_endpoint(request: ChatRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.post("/api/contact")
+async def contact_endpoint(data: ContactRequest):
+    """Deliver a portfolio contact submission using configured SMTP credentials."""
+    host = os.getenv("SMTP_HOST")
+    username = os.getenv("SMTP_USERNAME")
+    password = os.getenv("SMTP_PASSWORD")
+    recipient = os.getenv("CONTACT_RECIPIENT", "vaishnavshinde186@gmail.com")
+    port = int(os.getenv("SMTP_PORT", "587"))
+    if not host or not username or not password:
+        raise HTTPException(status_code=503, detail="Email delivery is not configured.")
+
+    def deliver():
+        email = EmailMessage()
+        email["Subject"] = f"Portfolio inquiry from {data.name}"
+        email["From"] = username
+        email["To"] = recipient
+        email["Reply-To"] = data.email
+        email.set_content(f"Name: {data.name}\nEmail: {data.email}\n\nMessage:\n{data.message}")
+        with smtplib.SMTP(host, port, timeout=20) as server:
+            server.starttls()
+            server.login(username, password)
+            server.send_message(email)
+
+    try:
+        await asyncio.to_thread(deliver)
+        return {"status": "sent"}
+    except Exception as exc:
+        print(f"[contact] delivery failed: {exc}", flush=True)
+        raise HTTPException(status_code=502, detail="Email could not be delivered.")
 @app.post("/api/visitor-log")
 async def visitor_log(data: VisitorLog, request: Request):
     """Receive visitor info from the frontend and send a Telegram notification."""
@@ -205,4 +241,5 @@ async def health_check():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("app:app", host="127.0.0.1", port=8000, reload=True)
+    port = int(os.getenv("PORT", "8000"))
+    uvicorn.run("app:app", host="0.0.0.0", port=port)
