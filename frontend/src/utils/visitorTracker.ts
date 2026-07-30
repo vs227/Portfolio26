@@ -11,6 +11,24 @@ const SESSION_KEY = "__vt_tracked";
 export async function trackVisitor() {
   if (typeof window === "undefined") return;
   if (sessionStorage.getItem(SESSION_KEY)) return;
+
+  // ── Filter out bots, crawlers, and Vercel build/preview renders ──
+  const ua = navigator.userAgent.toLowerCase();
+  const botPatterns = [
+    "bot", "crawl", "spider", "slurp", "lighthouse",
+    "headlesschrome", "phantomjs", "prerender", "snap",
+    "google", "bing", "yahoo", "baidu", "yandex",
+    "facebookexternalhit", "twitterbot", "linkedinbot",
+    "vercel", "netlify", "render",
+  ];
+  if (botPatterns.some((p) => ua.includes(p))) return;
+
+  // Headless browsers typically have 800x600 screen
+  if (screen.width <= 800 && screen.height <= 600) return;
+
+  // navigator.webdriver is true in automated browsers
+  if (navigator.webdriver) return;
+
   sessionStorage.setItem(SESSION_KEY, "1");
 
   try {
