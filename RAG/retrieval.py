@@ -30,7 +30,7 @@ def get_llm():
     global _llm
     if _llm is None:
         _llm = ChatGroq(
-            model_name="llama-3.1-8b-instant",
+            model_name="openai/gpt-oss-20b",
             temperature=0.2
         )
     return _llm
@@ -59,24 +59,47 @@ def query_rag(question: str, chat_history: list, db_path: str) -> str:
             "question": question
         }).strip()
         
-    # 2. Retrieve documents using the standalone query
-    retriever = db.as_retriever(search_kwargs={"k": 4})
+    # 2. Retrieve documents – fetch top matches and ensure project overview inclusion
+    retriever = db.as_retriever(search_kwargs={"k": 8})
     docs = retriever.invoke(standalone_question)
-    context = "\n\n".join(doc.page_content for doc in docs)
+
+    # Force inclusion of the project index overview chunk if asking about projects
+    project_keywords = ["project", "projects", "built", "done", "portfolio", "work", "how many", "list", "created", "apps"]
+    if any(kw in standalone_question.lower() for kw in project_keywords):
+        overview_docs = db.similarity_search("All Projects Overview project summary list", k=1)
+        if overview_docs:
+            docs = overview_docs + [d for d in docs if d.page_content != overview_docs[0].page_content]
+
+    # Deduplicate: keep at most 2 chunks per source project to avoid one project dominating
+    seen: dict[str, int] = {}
+    diverse_docs = []
+    for doc in docs:
+        label = doc.metadata.get("source_label", "unknown")
+        seen[label] = seen.get(label, 0) + 1
+        if seen[label] <= 2:
+            diverse_docs.append(doc)
+
+    context = "\n\n".join(doc.page_content for doc in diverse_docs)
     
     # 3. Generate response using contextual prompt
     rag_prompt = ChatPromptTemplate.from_messages([
         ("system", (
-            "You are an intelligent, professional AI assistant for Vaishnav Shinde's portfolio. "
+            "You are an intelligent, professional AI assistant for Vaishnav Shinde's portfolio.\n"
             "Your goal is to answer questions about Vaishnav (his skills, education, and projects) "
             "as well as handle general questions, coding queries, or greetings.\n\n"
-            "Guidelines:\n"
-            "1. For questions about Vaishnav's qualifications, resume, or projects: Rely on the provided CONTEXT. "
-            "Assume all projects described in the context are developed by Vaishnav.\n"
-            "2. For general questions (greetings, explaining technical terms like Blockchain, React, YOLO, etc., or writing code snippets): "
-            "Answer them intelligently using your general knowledge, keeping answers concise and professional.\n"
-            "3. If a question asks about Vaishnav's personal details or work experience not mentioned in the context, "
-            "politely state that the information is not available in his resume rather than hallucinating details.\n\n"
+            "FORMATTING RULES (strict):\n"
+            "- You are writing inside a small chat widget. Keep responses concise and scannable.\n"
+            "- Use **bold** for emphasis. Use bullet points (- item) for lists.\n"
+            "- NEVER use HTML tags like <br>, <b>, <table>, etc.\n"
+            "- NEVER use markdown tables (| --- |). Use bullet lists instead.\n"
+            "- Keep paragraphs short (2-3 sentences max). Add a blank line between sections.\n"
+            "- Do NOT dump raw data. Summarise information in a friendly, human way.\n\n"
+            "CONTENT RULES:\n"
+            "1. Vaishnav has built 4 major projects: HirePulse Pivot (Job Aggregator), MediChain Intelligence (Blockchain Healthcare), Guard Up / IIDS (Intrusion Detection), and XAUUSD ML Framework (Market Pattern Model). Always state that he has built 4 projects when asked about his projects or project count.\n"
+            "2. ALWAYS prioritize the facts in the CONTEXT over any contradictory or incorrect statements in the previous chat history.\n"
+            "3. Each context chunk is tagged with a [Project: ...] label. NEVER mix details from one project into another.\n"
+            "4. Do NOT use meta-phrases like 'according to the resume' or 'in the provided context'. Speak naturally as Vaishnav's assistant.\n"
+            "5. If a question asks about personal details not in the context, state politely that the information is not available.\n\n"
             "CONTEXT:\n{context}"
         )),
         ("placeholder", "{chat_history}"),

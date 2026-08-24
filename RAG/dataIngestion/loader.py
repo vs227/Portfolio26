@@ -8,6 +8,16 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 
+# Map filenames to friendly project labels
+SOURCE_LABELS = {
+    "project_index.md": "All Projects Overview",
+    "job.md": "Project: HirePulse Pivot (Job Aggregator)",
+    "blockchain_healthcare.md": "Project: MediChain Intelligence (Blockchain Healthcare)",
+    "intrusion.md": "Project: Guard Up / IIDS (Intrusion Detection)",
+    "market.md": "Project: XAUUSD ML Framework (Market Pattern Model)",
+    "vs_resume.pdf": "Vaishnav Shinde Resume",
+}
+
 def load_documents(data_dir: str):
     documents = []
     data_path = Path(data_dir)
@@ -17,33 +27,46 @@ def load_documents(data_dir: str):
         return documents
 
     for file_path in data_path.iterdir():
+        label = SOURCE_LABELS.get(file_path.name, file_path.stem)
         if file_path.suffix == '.pdf':
             print(f"Loading PDF: {file_path.name}")
             try:
                 loader = PyMuPDFLoader(str(file_path))
-                documents.extend(loader.load())
+                docs = loader.load()
             except Exception as e:
                 print(f"PyMuPDF failed to load {file_path.name}: {e}. Retrying with PyPDFLoader...")
                 try:
                     loader = PyPDFLoader(str(file_path))
-                    documents.extend(loader.load())
+                    docs = loader.load()
                 except Exception as ex:
                     print(f"Failed to load PDF {file_path.name} with both loaders: {ex}")
+                    docs = []
+            for doc in docs:
+                doc.metadata["source_label"] = label
+            documents.extend(docs)
         elif file_path.suffix == '.md':
             print(f"Loading Markdown: {file_path.name}")
             loader = TextLoader(str(file_path), encoding='utf-8')
-            documents.extend(loader.load())
+            docs = loader.load()
+            for doc in docs:
+                doc.metadata["source_label"] = label
+            documents.extend(docs)
             
     print(f"Loaded {len(documents)} documents.")
     return documents
 
-def split_documents(documents, chunk_size=800, chunk_overlap=100):
+def split_documents(documents, chunk_size=1200, chunk_overlap=150):
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=chunk_size,
         chunk_overlap=chunk_overlap,
-        separators=["\n\n", "\n", " ", ""]
+        separators=["\n---\n", "\n\n", "\n", " ", ""]
     )
     chunks = text_splitter.split_documents(documents)
+    # Prefix each chunk with its source project label for retrieval clarity
+    for chunk in chunks:
+        label = chunk.metadata.get("source_label", "")
+        if label:
+            chunk.page_content = f"[{label}]\n{chunk.page_content}"
     print(f"Split documents into {len(chunks)} chunks.")
     return chunks
 
