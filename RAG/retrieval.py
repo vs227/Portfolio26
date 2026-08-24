@@ -42,9 +42,12 @@ def query_rag(question: str, chat_history: list, db_path: str) -> str:
     db = get_vector_db(db_path)
     llm = get_llm()
     
+    # Keep history bounded to recent 6 messages (3 back-and-forth turns) to minimize token consumption
+    recent_history = chat_history[-6:] if chat_history else []
+
     # 1. Condense follow-up questions if chat history exists
     standalone_question = question
-    if chat_history:
+    if recent_history:
         condense_prompt = ChatPromptTemplate.from_messages([
             ("system", (
                 "Given the chat history and follow-up question, rephrase it "
@@ -55,10 +58,10 @@ def query_rag(question: str, chat_history: list, db_path: str) -> str:
         ])
         condense_chain = condense_prompt | llm | StrOutputParser()
         standalone_question = condense_chain.invoke({
-            "chat_history": chat_history,
+            "chat_history": recent_history,
             "question": question
         }).strip()
-        
+
     # 2. Retrieve documents – fetch top matches and ensure project overview inclusion
     retriever = db.as_retriever(search_kwargs={"k": 8})
     docs = retriever.invoke(standalone_question)
@@ -109,7 +112,7 @@ def query_rag(question: str, chat_history: list, db_path: str) -> str:
     rag_chain = rag_prompt | llm | StrOutputParser()
     response = rag_chain.invoke({
         "context": context,
-        "chat_history": chat_history,
+        "chat_history": recent_history,
         "question": question
     })
     
