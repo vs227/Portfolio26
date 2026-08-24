@@ -28,12 +28,17 @@ export default function AiAssistant() {
   const [loading, setLoading] = useState(false);
   const [typing, setTyping] = useState(false);
   const [animating, setAnimating] = useState(false);
+  const [closing, setClosing] = useState(false);
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
 
+  const containerRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const panelCanvasRef = useRef<HTMLCanvasElement>(null);
   const vanishFrameRef = useRef<number>(0);
+  const panelVanishFrameRef = useRef<number>(0);
 
   // ── ScrollTrigger to raise chat above footer ──
   useEffect(() => {
@@ -51,6 +56,95 @@ export default function AiAssistant() {
       anim.kill();
     };
   }, []);
+
+  // ── Click outside and close trigger with particle vanish effect ──
+  const triggerVanishClose = useCallback(() => {
+    if (!open || closing) return;
+    setClosing(true);
+
+    const panelEl = panelRef.current;
+    const canvas = panelCanvasRef.current;
+
+    if (panelEl && canvas) {
+      const rect = panelEl.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      const ctx = canvas.getContext("2d");
+
+      if (ctx) {
+        ctx.scale(dpr, dpr);
+        const particles: { x: number; y: number; r: number; g: number; b: number; a: number; vx: number; vy: number; life: number }[] = [];
+
+        // Spawn 150 floating particle dots across panel frame
+        for (let i = 0; i < 150; i++) {
+          const isEdge = Math.random() < 0.6;
+          let x = Math.random() * rect.width;
+          let y = Math.random() * rect.height;
+          if (isEdge) {
+            const side = Math.floor(Math.random() * 4);
+            if (side === 0) y = 0;
+            else if (side === 1) x = rect.width;
+            else if (side === 2) y = rect.height;
+            else x = 0;
+          }
+          particles.push({
+            x,
+            y,
+            r: 233,
+            g: 255,
+            b: 108,
+            a: Math.random() * 0.8 + 0.2,
+            vx: (Math.random() - 0.5) * 4,
+            vy: (Math.random() - 0.5) * 4 - 1,
+            life: 1.0,
+          });
+        }
+
+        const animatePanelVanish = () => {
+          ctx.clearRect(0, 0, rect.width, rect.height);
+          let alive = false;
+          for (const p of particles) {
+            if (p.life <= 0) continue;
+            alive = true;
+            p.x += p.vx;
+            p.y += p.vy;
+            p.life -= 0.035;
+            p.a = Math.max(0, p.life);
+
+            ctx.fillStyle = `rgba(${p.r},${p.g},${p.b},${p.a})`;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, Math.random() * 2 + 1, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          if (alive) {
+            panelVanishFrameRef.current = requestAnimationFrame(animatePanelVanish);
+          } else {
+            ctx.clearRect(0, 0, rect.width, rect.height);
+          }
+        };
+        panelVanishFrameRef.current = requestAnimationFrame(animatePanelVanish);
+      }
+    }
+
+    setTimeout(() => {
+      setOpen(false);
+      setClosing(false);
+    }, 280);
+  }, [open, closing]);
+
+  // ── Click outside detection ──
+  useEffect(() => {
+    if (!open) return;
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        triggerVanishClose();
+      }
+    };
+    document.addEventListener("pointerdown", handleClickOutside);
+    return () => document.removeEventListener("pointerdown", handleClickOutside);
+  }, [open, triggerVanishClose]);
 
   // ── Auto-scroll chat ──
   useEffect(() => { if (open) endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, loading, open]);
@@ -70,7 +164,7 @@ export default function AiAssistant() {
     return <ReactMarkdown>{msg.content}</ReactMarkdown>;
   };
 
-  // ── Vanish animation: capture text pixels → animate particles ──
+  // ── Vanish animation for input text ──
   const vanishAndSubmit = useCallback(() => {
     const canvas = canvasRef.current;
     const inputEl = inputRef.current;
@@ -81,30 +175,27 @@ export default function AiAssistant() {
     const ctx = canvas.getContext("2d", { willReadFrequently: true });
     if (!ctx) { setAnimating(false); return; }
 
-    // Match canvas to input dimensions
     const rect = inputEl.getBoundingClientRect();
     const dpr = window.devicePixelRatio || 1;
     canvas.width = rect.width * dpr;
     canvas.height = rect.height * dpr;
     ctx.scale(dpr, dpr);
 
-    // Draw the input text onto the canvas
     const computedStyle = getComputedStyle(inputEl);
     ctx.font = `${computedStyle.fontSize} ${computedStyle.fontFamily}`;
     ctx.fillStyle = "#fff";
     ctx.textBaseline = "middle";
     ctx.fillText(input, 0, rect.height / 2);
 
-    // Extract non-transparent pixels as particles
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const pixels = imageData.data;
     const particles: { x: number; y: number; r: number; g: number; b: number; a: number; vx: number; vy: number; life: number }[] = [];
-    const step = 2; // sample every 2 pixels for performance
+    const step = 2;
 
     for (let y = 0; y < canvas.height; y += step) {
       for (let x = 0; x < canvas.width; x += step) {
         const i = (y * canvas.width + x) * 4;
-        if (pixels[i + 3] > 30) { // non-transparent
+        if (pixels[i + 3] > 30) {
           particles.push({
             x: x / dpr,
             y: y / dpr,
@@ -120,11 +211,9 @@ export default function AiAssistant() {
       }
     }
 
-    // Clear the input immediately
     const submittedText = input;
     setInput("");
 
-    // Animate particles
     const decay = 0.008;
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width / dpr, canvas.height);
@@ -135,7 +224,7 @@ export default function AiAssistant() {
         alive = true;
         p.x += p.vx;
         p.y += p.vy;
-        p.vy += 0.02; // gentle gravity
+        p.vy += 0.02;
         p.life -= decay;
         p.a = Math.max(0, p.life);
 
@@ -152,19 +241,16 @@ export default function AiAssistant() {
     };
 
     vanishFrameRef.current = requestAnimationFrame(animate);
-
-    // Trigger the actual chat submission
     ask(submittedText);
   }, [input, animating]);
 
-  // ── Cleanup animation frame on unmount ──
   useEffect(() => {
     return () => {
       if (vanishFrameRef.current) cancelAnimationFrame(vanishFrameRef.current);
+      if (panelVanishFrameRef.current) cancelAnimationFrame(panelVanishFrameRef.current);
     };
   }, []);
 
-  // ── Chat logic ──
   const ask = async (question: string) => {
     const message = question.trim(); if (!message || loading || typing) return;
     const history = messages; setMessages((current) => [...current, { role: "user", content: message }]); setLoading(true);
@@ -185,12 +271,10 @@ export default function AiAssistant() {
       responseText = "The portfolio assistant is currently offline. You can still reach Vaishnav directly at vaishnavshinde186@gmail.com.";
     }
 
-    // Thinking delay to simulate natural cognition
     await new Promise((resolve) => setTimeout(resolve, 600 + Math.random() * 400));
     setLoading(false);
     setTyping(true);
 
-    // Type out response with variable speed
     setMessages((current) => [...current, { role: "assistant", content: "" }]);
     let currentText = "";
     for (let i = 0; i < responseText.length; i++) {
@@ -227,40 +311,87 @@ export default function AiAssistant() {
     vanishAndSubmit();
   };
 
-  return <div className="portfolio-chat">
-    <AnimatePresence>{open && <motion.section initial={{ opacity: 0, y: 18, scale: .96 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 18, scale: .96 }} transition={{ duration: .28 }} className="chat-panel" data-lenis-prevent>
-      <header><div><span>ASSISTANT</span></div><button onClick={() => setOpen(false)} aria-label="Close assistant"><FiX /></button></header>
-      <div className="chat-messages">{messages.map((message, index) => <div className={`chat-bubble ${message.role}`} key={`${message.role}-${index}`}>{renderContent(message)}</div>)}{loading && <div className="chat-bubble assistant chat-loading"><b /><b /><b /></div>}<div ref={endRef} /></div>
-      {messages.length === 1 && !loading && !typing && <div className="chat-prompts">{defaultPrompts.map((prompt) => <button key={prompt} onClick={() => ask(prompt)}>{prompt}</button>)}</div>}
+  return (
+    <div ref={containerRef} className="portfolio-chat">
+      <AnimatePresence>
+        {open && (
+          <motion.section
+            ref={panelRef}
+            initial={{ opacity: 0, y: 18, scale: 0.96, filter: "blur(4px)" }}
+            animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
+            exit={{ opacity: 0, y: 16, scale: 0.90, filter: "blur(10px)", transition: { duration: 0.28, ease: [0.16, 1, 0.3, 1] } }}
+            transition={{ duration: 0.28 }}
+            className="chat-panel relative overflow-hidden"
+            data-lenis-prevent
+          >
+            <canvas ref={panelCanvasRef} className="absolute inset-0 pointer-events-none z-50 w-full h-full" />
+            <header>
+              <div><span>ASSISTANT</span></div>
+              <button onClick={triggerVanishClose} aria-label="Close assistant"><FiX /></button>
+            </header>
+            <div className="chat-messages">
+              {messages.map((message, index) => (
+                <div className={`chat-bubble ${message.role}`} key={`${message.role}-${index}`}>
+                  {renderContent(message)}
+                </div>
+              ))}
+              {loading && (
+                <div className="chat-bubble assistant chat-loading">
+                  <b /><b /><b />
+                </div>
+              )}
+              <div ref={endRef} />
+            </div>
+            {messages.length === 1 && !loading && !typing && (
+              <div className="chat-prompts">
+                {defaultPrompts.map((prompt) => (
+                  <button key={prompt} onClick={() => ask(prompt)}>{prompt}</button>
+                ))}
+              </div>
+            )}
 
-      <form onSubmit={submit} className="chat-vanish-form">
-        <div className="vanish-input-wrapper">
-          <input
-            ref={inputRef}
-            value={input}
-            onChange={(event) => setInput(event.target.value)}
-            disabled={loading || typing}
-            className={animating ? "vanish-hidden" : ""}
-          />
-          <canvas ref={canvasRef} className="vanish-canvas" />
-          {!input && !animating && (
-            <AnimatePresence mode="wait">
-              <motion.span
-                key={placeholderIndex}
-                className="vanish-placeholder"
-                initial={{ y: 8, opacity: 0 }}
-                animate={{ y: 0, opacity: 0.45 }}
-                exit={{ y: -8, opacity: 0 }}
-                transition={{ duration: 0.25 }}
-              >
-                {placeholders[placeholderIndex]}
-              </motion.span>
-            </AnimatePresence>
-          )}
-        </div>
-        <button disabled={loading || typing || !input.trim()} aria-label="Send message"><FiSend /></button>
-      </form>
-    </motion.section>}</AnimatePresence>
-    <motion.button className="chat-trigger" onClick={() => setOpen((value) => !value)} whileTap={{ scale: .94 }} aria-label="Open portfolio assistant">{open ? <FiX /> : <FiMessageCircle />}<span>{open ? "Close" : "Ask Vaishnav's AI"}</span></motion.button>
-  </div>;
+            <form onSubmit={submit} className="chat-vanish-form">
+              <div className="vanish-input-wrapper">
+                <input
+                  ref={inputRef}
+                  value={input}
+                  onChange={(event) => setInput(event.target.value)}
+                  disabled={loading || typing}
+                  className={animating ? "vanish-hidden" : ""}
+                />
+                <canvas ref={canvasRef} className="vanish-canvas" />
+                {!input && !animating && (
+                  <AnimatePresence mode="wait">
+                    <motion.span
+                      key={placeholderIndex}
+                      className="vanish-placeholder"
+                      initial={{ y: 8, opacity: 0 }}
+                      animate={{ y: 0, opacity: 0.45 }}
+                      exit={{ y: -8, opacity: 0 }}
+                      transition={{ duration: 0.25 }}
+                    >
+                      {placeholders[placeholderIndex]}
+                    </motion.span>
+                  </AnimatePresence>
+                )}
+              </div>
+              <button disabled={loading || typing || !input.trim()} aria-label="Send message"><FiSend /></button>
+            </form>
+          </motion.section>
+        )}
+      </AnimatePresence>
+      <motion.button
+        className="chat-trigger"
+        onClick={() => {
+          if (open) triggerVanishClose();
+          else setOpen(true);
+        }}
+        whileTap={{ scale: 0.94 }}
+        aria-label="Open portfolio assistant"
+      >
+        {open ? <FiX /> : <FiMessageCircle />}
+        <span>{open ? "Close" : "Ask Vaishnav's AI"}</span>
+      </motion.button>
+    </div>
+  );
 }
