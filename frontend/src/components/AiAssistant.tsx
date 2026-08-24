@@ -28,17 +28,13 @@ export default function AiAssistant() {
   const [loading, setLoading] = useState(false);
   const [typing, setTyping] = useState(false);
   const [animating, setAnimating] = useState(false);
-  const [closing, setClosing] = useState(false);
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
 
   const containerRef = useRef<HTMLDivElement>(null);
-  const panelRef = useRef<HTMLDivElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const panelCanvasRef = useRef<HTMLCanvasElement>(null);
   const vanishFrameRef = useRef<number>(0);
-  const panelVanishFrameRef = useRef<number>(0);
 
   // ── ScrollTrigger to raise chat above footer ──
   useEffect(() => {
@@ -57,94 +53,17 @@ export default function AiAssistant() {
     };
   }, []);
 
-  // ── Click outside and close trigger with particle vanish effect ──
-  const triggerVanishClose = useCallback(() => {
-    if (!open || closing) return;
-    setClosing(true);
-
-    const panelEl = panelRef.current;
-    const canvas = panelCanvasRef.current;
-
-    if (panelEl && canvas) {
-      const rect = panelEl.getBoundingClientRect();
-      const dpr = window.devicePixelRatio || 1;
-      canvas.width = rect.width * dpr;
-      canvas.height = rect.height * dpr;
-      const ctx = canvas.getContext("2d");
-
-      if (ctx) {
-        ctx.scale(dpr, dpr);
-        const particles: { x: number; y: number; r: number; g: number; b: number; a: number; vx: number; vy: number; life: number }[] = [];
-
-        // Spawn 150 floating particle dots across panel frame
-        for (let i = 0; i < 150; i++) {
-          const isEdge = Math.random() < 0.6;
-          let x = Math.random() * rect.width;
-          let y = Math.random() * rect.height;
-          if (isEdge) {
-            const side = Math.floor(Math.random() * 4);
-            if (side === 0) y = 0;
-            else if (side === 1) x = rect.width;
-            else if (side === 2) y = rect.height;
-            else x = 0;
-          }
-          particles.push({
-            x,
-            y,
-            r: 233,
-            g: 255,
-            b: 108,
-            a: Math.random() * 0.8 + 0.2,
-            vx: (Math.random() - 0.5) * 4,
-            vy: (Math.random() - 0.5) * 4 - 1,
-            life: 1.0,
-          });
-        }
-
-        const animatePanelVanish = () => {
-          ctx.clearRect(0, 0, rect.width, rect.height);
-          let alive = false;
-          for (const p of particles) {
-            if (p.life <= 0) continue;
-            alive = true;
-            p.x += p.vx;
-            p.y += p.vy;
-            p.life -= 0.035;
-            p.a = Math.max(0, p.life);
-
-            ctx.fillStyle = `rgba(${p.r},${p.g},${p.b},${p.a})`;
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, Math.random() * 2 + 1, 0, Math.PI * 2);
-            ctx.fill();
-          }
-
-          if (alive) {
-            panelVanishFrameRef.current = requestAnimationFrame(animatePanelVanish);
-          } else {
-            ctx.clearRect(0, 0, rect.width, rect.height);
-          }
-        };
-        panelVanishFrameRef.current = requestAnimationFrame(animatePanelVanish);
-      }
-    }
-
-    setTimeout(() => {
-      setOpen(false);
-      setClosing(false);
-    }, 280);
-  }, [open, closing]);
-
-  // ── Click outside detection ──
+  // ── Click outside handler to close chatbox ──
   useEffect(() => {
     if (!open) return;
     const handleClickOutside = (event: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        triggerVanishClose();
+        setOpen(false);
       }
     };
     document.addEventListener("pointerdown", handleClickOutside);
     return () => document.removeEventListener("pointerdown", handleClickOutside);
-  }, [open, triggerVanishClose]);
+  }, [open]);
 
   // ── Auto-scroll chat ──
   useEffect(() => { if (open) endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, loading, open]);
@@ -164,7 +83,7 @@ export default function AiAssistant() {
     return <ReactMarkdown>{msg.content}</ReactMarkdown>;
   };
 
-  // ── Vanish animation for input text ──
+  // ── Vanish animation: capture text pixels → animate particles ──
   const vanishAndSubmit = useCallback(() => {
     const canvas = canvasRef.current;
     const inputEl = inputRef.current;
@@ -247,7 +166,6 @@ export default function AiAssistant() {
   useEffect(() => {
     return () => {
       if (vanishFrameRef.current) cancelAnimationFrame(vanishFrameRef.current);
-      if (panelVanishFrameRef.current) cancelAnimationFrame(panelVanishFrameRef.current);
     };
   }, []);
 
@@ -316,18 +234,16 @@ export default function AiAssistant() {
       <AnimatePresence>
         {open && (
           <motion.section
-            ref={panelRef}
-            initial={{ opacity: 0, y: 18, scale: 0.96, filter: "blur(4px)" }}
+            initial={{ opacity: 0, y: 20, scale: 0.95, filter: "blur(6px)" }}
             animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
-            exit={{ opacity: 0, y: 16, scale: 0.90, filter: "blur(10px)", transition: { duration: 0.28, ease: [0.16, 1, 0.3, 1] } }}
-            transition={{ duration: 0.28 }}
-            className="chat-panel relative overflow-hidden"
+            exit={{ opacity: 0, y: 24, scale: 0.92, filter: "blur(12px)", transition: { duration: 0.22, ease: [0.32, 0.72, 0, 1] } }}
+            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            className="chat-panel"
             data-lenis-prevent
           >
-            <canvas ref={panelCanvasRef} className="absolute inset-0 pointer-events-none z-50 w-full h-full" />
             <header>
               <div><span>ASSISTANT</span></div>
-              <button onClick={triggerVanishClose} aria-label="Close assistant"><FiX /></button>
+              <button onClick={() => setOpen(false)} aria-label="Close assistant"><FiX /></button>
             </header>
             <div className="chat-messages">
               {messages.map((message, index) => (
@@ -382,10 +298,7 @@ export default function AiAssistant() {
       </AnimatePresence>
       <motion.button
         className="chat-trigger"
-        onClick={() => {
-          if (open) triggerVanishClose();
-          else setOpen(true);
-        }}
+        onClick={() => setOpen((value) => !value)}
         whileTap={{ scale: 0.94 }}
         aria-label="Open portfolio assistant"
       >
