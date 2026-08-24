@@ -21,6 +21,20 @@ const placeholders = [
   "What has he built with AI?",
 ];
 
+interface PixelParticle {
+  x: number;
+  y: number;
+  size: number;
+  r: number;
+  g: number;
+  b: number;
+  a: number;
+  vx: number;
+  vy: number;
+  life: number;
+  decay: number;
+}
+
 export default function AiAssistant() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([welcome]);
@@ -28,13 +42,18 @@ export default function AiAssistant() {
   const [loading, setLoading] = useState(false);
   const [typing, setTyping] = useState(false);
   const [animating, setAnimating] = useState(false);
+  const [isShattering, setIsShattering] = useState(false);
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
 
   const containerRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const shatterCanvasRef = useRef<HTMLCanvasElement>(null);
+
   const vanishFrameRef = useRef<number>(0);
+  const shatterFrameRef = useRef<number>(0);
 
   // ── ScrollTrigger to raise chat above footer ──
   useEffect(() => {
@@ -53,17 +72,122 @@ export default function AiAssistant() {
     };
   }, []);
 
-  // ── Click outside handler to close chatbox ──
+  // ── EPIC PIXEL SHATTER VANISH ENGINE ──
+  const closeWithPixelShatter = useCallback(() => {
+    if (!open || isShattering) return;
+
+    const panelEl = panelRef.current;
+    const canvas = shatterCanvasRef.current;
+
+    if (!panelEl || !canvas) {
+      setOpen(false);
+      return;
+    }
+
+    setIsShattering(true);
+
+    const rect = panelEl.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
+      setOpen(false);
+      setIsShattering(false);
+      return;
+    }
+
+    ctx.scale(dpr, dpr);
+
+    // Color palette sampled from the actual dark/acid portfolio assistant theme
+    const colors = [
+      { r: 17, g: 19, b: 20 },     // 60% Theme Ink
+      { r: 233, g: 255, b: 108 },  // 20% Acid Green
+      { r: 255, g: 255, b: 255 },  // 10% Crisp White
+      { r: 42, g: 46, b: 48 },     // 5% Slate Border
+      { r: 255, g: 112, b: 84 },   // 5% Coral Accent
+    ];
+
+    const particles: PixelParticle[] = [];
+    const step = 6; // Grid step for thousands of dense pixel particles
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+
+    // Shatter the entire panel frame into 2,000+ dense pixel particles
+    for (let y = 0; y < rect.height; y += step) {
+      for (let x = 0; x < rect.width; x += step) {
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        const dx = (x - centerX) / (rect.width / 2);
+        const dy = (y - centerY) / (rect.height / 2);
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        // Explosive outward velocity vectors with radial dispersion & turbulence
+        const speed = Math.random() * 3 + 1.5;
+        const vx = dx * speed + (Math.random() - 0.5) * 2.5;
+        const vy = dy * speed + (Math.random() - 0.5) * 2.5 - 0.5;
+
+        particles.push({
+          x: x + (Math.random() - 0.5) * 2,
+          y: y + (Math.random() - 0.5) * 2,
+          size: Math.random() * 1.8 + 1.2,
+          r: color.r,
+          g: color.g,
+          b: color.b,
+          a: Math.random() * 0.4 + 0.6,
+          vx,
+          vy,
+          life: 1.0,
+          decay: Math.random() * 0.018 + 0.012,
+        });
+      }
+    }
+
+    // Hide HTML panel so the pixel particle shatter effect replaces it instantly
+    setOpen(false);
+
+    // Animate the thousands of pixel particles dissolving into thin air
+    const animateShatter = () => {
+      ctx.clearRect(0, 0, rect.width, rect.height);
+      let alive = false;
+
+      for (const p of particles) {
+        if (p.life <= 0) continue;
+        alive = true;
+
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.03; // Gentle downward gravity
+        p.life -= p.decay;
+        p.a = Math.max(0, p.life);
+
+        ctx.fillStyle = `rgba(${p.r},${p.g},${p.b},${p.a})`;
+        ctx.fillRect(p.x, p.y, p.size, p.size);
+      }
+
+      if (alive) {
+        shatterFrameRef.current = requestAnimationFrame(animateShatter);
+      } else {
+        ctx.clearRect(0, 0, rect.width, rect.height);
+        setIsShattering(false);
+      }
+    };
+
+    shatterFrameRef.current = requestAnimationFrame(animateShatter);
+  }, [open, isShattering]);
+
+  // ── Click outside detection ──
   useEffect(() => {
     if (!open) return;
     const handleClickOutside = (event: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        setOpen(false);
+        closeWithPixelShatter();
       }
     };
     document.addEventListener("pointerdown", handleClickOutside);
     return () => document.removeEventListener("pointerdown", handleClickOutside);
-  }, [open]);
+  }, [open, closeWithPixelShatter]);
 
   // ── Auto-scroll chat ──
   useEffect(() => { if (open) endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, loading, open]);
@@ -166,6 +290,7 @@ export default function AiAssistant() {
   useEffect(() => {
     return () => {
       if (vanishFrameRef.current) cancelAnimationFrame(vanishFrameRef.current);
+      if (shatterFrameRef.current) cancelAnimationFrame(shatterFrameRef.current);
     };
   }, []);
 
@@ -230,20 +355,29 @@ export default function AiAssistant() {
   };
 
   return (
-    <div ref={containerRef} className="portfolio-chat">
+    <div ref={containerRef} className="portfolio-chat relative">
+      {/* Canvas Overlay for Full Panel Pixel Shatter Animation */}
+      <canvas
+        ref={shatterCanvasRef}
+        className={`absolute bottom-full right-0 mb-3 pointer-events-none z-50 rounded-2xl ${
+          isShattering ? "block" : "hidden"
+        }`}
+      />
+
       <AnimatePresence>
         {open && (
           <motion.section
+            ref={panelRef}
             initial={{ opacity: 0, y: 20, scale: 0.95, filter: "blur(6px)" }}
             animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
-            exit={{ opacity: 0, y: 24, scale: 0.92, filter: "blur(12px)", transition: { duration: 0.22, ease: [0.32, 0.72, 0, 1] } }}
-            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            exit={{ opacity: 0, transition: { duration: 0.05 } }}
+            transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
             className="chat-panel"
             data-lenis-prevent
           >
             <header>
               <div><span>ASSISTANT</span></div>
-              <button onClick={() => setOpen(false)} aria-label="Close assistant"><FiX /></button>
+              <button onClick={closeWithPixelShatter} aria-label="Close assistant"><FiX /></button>
             </header>
             <div className="chat-messages">
               {messages.map((message, index) => (
@@ -298,7 +432,10 @@ export default function AiAssistant() {
       </AnimatePresence>
       <motion.button
         className="chat-trigger"
-        onClick={() => setOpen((value) => !value)}
+        onClick={() => {
+          if (open) closeWithPixelShatter();
+          else setOpen(true);
+        }}
         whileTap={{ scale: 0.94 }}
         aria-label="Open portfolio assistant"
       >
