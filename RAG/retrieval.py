@@ -93,6 +93,7 @@ def query_rag(question: str, chat_history: list, db_path: str) -> str:
             "FORMATTING RULES (strict):\n"
             "- You are writing inside a small chat widget. Keep responses concise and scannable.\n"
             "- Use **bold** for emphasis. Use bullet points (- item) for lists.\n"
+            "- NEVER use emojis (such as 👋, 🚀, etc.) in any response.\n"
             "- NEVER use HTML tags like <br>, <b>, <table>, etc.\n"
             "- NEVER use markdown tables (| --- |). Use bullet lists instead.\n"
             "- Keep paragraphs short (2-3 sentences max). Add a blank line between sections.\n"
