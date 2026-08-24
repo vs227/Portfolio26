@@ -172,9 +172,15 @@ export default function AiAssistant() {
     try {
       const base = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
       const response = await fetch(`${base}/api/chat`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message, history }) });
-      if (!response.ok) throw new Error("RAG API unavailable");
-      const data = await response.json();
-      responseText = data.response;
+      if (response.status === 429) {
+        const errData = await response.json().catch(() => ({}));
+        responseText = errData.detail || "Rate limit reached. Please wait a moment before sending another message.";
+      } else if (!response.ok) {
+        throw new Error("RAG API unavailable");
+      } else {
+        const data = await response.json();
+        responseText = data.response;
+      }
     } catch {
       responseText = "The portfolio assistant is currently offline. You can still reach Vaishnav directly at vaishnavshinde186@gmail.com.";
     }

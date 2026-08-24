@@ -6,9 +6,10 @@ import threading
 import asyncio
 import smtplib
 from email.message import EmailMessage
+import collections
 from contextlib import asynccontextmanager
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
@@ -18,9 +19,49 @@ load_dotenv()
 
 DB_PATH = "faiss_index"
 
+# ── Rate Limiting ──
+class RateLimiter:
+    """In-memory sliding window rate limiter per client IP address."""
+    def __init__(self, requests_limit: int, window_seconds: int):
+        self.requests_limit = requests_limit
+        self.window_seconds = window_seconds
+        self.history: dict[str, list[float]] = collections.defaultdict(list)
+
+    def is_allowed(self, client_ip: str) -> tuple[bool, int]:
+        now = time.time()
+        window_start = now - self.window_seconds
+        
+        # Keep timestamps within sliding window
+        timestamps = [t for t in self.history[client_ip] if t > window_start]
+        self.history[client_ip] = timestamps
+        
+        if len(timestamps) < self.requests_limit:
+            self.history[client_ip].append(now)
+            return True, 0
+        else:
+            oldest_in_window = timestamps[0]
+            retry_after = int(oldest_in_window + self.window_seconds - now) + 1
+            return False, max(1, retry_after)
+
+# Instantiate rate limiters
+chat_limiter = RateLimiter(requests_limit=10, window_seconds=60)     # 10 chats / min
+contact_limiter = RateLimiter(requests_limit=3, window_seconds=300)  # 3 contacts / 5 min
+visitor_limiter = RateLimiter(requests_limit=10, window_seconds=60)  # 10 logs / min
+
+def get_client_ip(request: Request) -> str:
+    """Extract real client IP address from proxy headers."""
+    x_forwarded = request.headers.get("x-forwarded-for")
+    if x_forwarded:
+        return x_forwarded.split(",")[0].strip()
+    x_real_ip = request.headers.get("x-real-ip")
+    if x_real_ip:
+        return x_real_ip.strip()
+    return request.client.host if request.client else "127.0.0.1"
+
 # Track whether models have finished loading
 _models_ready = threading.Event()
 _load_error = None
+
 
 def _preload_models():
     """Load models in a background thread so the server can bind the port immediately."""
@@ -122,7 +163,15 @@ async def _send_telegram(message: str):
         print(f"[visitor] Failed to send Telegram notification: {e}", flush=True)
 
 @app.post("/api/chat")
-async def chat_endpoint(request: ChatRequest):
+async def chat_endpoint(request: ChatRequest, req: Request):
+    client_ip = get_client_ip(req)
+    allowed, retry_after = chat_limiter.is_allowed(client_ip)
+    if not allowed:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail=f"Rate limit exceeded. Please wait {retry_after} seconds before asking another question.",
+            headers={"Retry-After": str(retry_after)}
+        )
     # Wait up to 300s for background model loading to finish
     if not _models_ready.wait(timeout=300):
         raise HTTPException(status_code=503, detail="Models are still loading, please try again shortly.")
@@ -146,8 +195,16 @@ async def chat_endpoint(request: ChatRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/contact")
-async def contact_endpoint(data: ContactRequest):
+async def contact_endpoint(data: ContactRequest, req: Request):
     """Deliver a portfolio contact submission using configured SMTP credentials."""
+    client_ip = get_client_ip(req)
+    allowed, retry_after = contact_limiter.is_allowed(client_ip)
+    if not allowed:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail=f"Too many contact submissions. Please wait {retry_after} seconds before sending another message.",
+            headers={"Retry-After": str(retry_after)}
+        )
     host = os.getenv("SMTP_HOST")
     username = os.getenv("SMTP_USERNAME")
     password = os.getenv("SMTP_PASSWORD")
@@ -174,9 +231,15 @@ async def contact_endpoint(data: ContactRequest):
     except Exception as exc:
         print(f"[contact] delivery failed: {exc}", flush=True)
         raise HTTPException(status_code=502, detail="Email could not be delivered.")
+
 @app.post("/api/visitor-log")
 async def visitor_log(data: VisitorLog, request: Request):
     """Receive visitor info from the frontend and send a Telegram notification."""
+    client_ip = get_client_ip(request)
+    allowed, _ = visitor_limiter.is_allowed(client_ip)
+    if not allowed:
+        return {"status": "rate_limited"}
+
     # ── Get the real client IP from proxy headers (Vercel/Cloudflare/Render) ──
     real_ip = (
         request.headers.get("x-forwarded-for", "").split(",")[0].strip()
