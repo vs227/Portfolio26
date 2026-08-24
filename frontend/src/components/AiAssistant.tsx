@@ -68,6 +68,17 @@ export default function AiAssistant() {
   // ── Auto-scroll chat ──
   useEffect(() => { if (open) endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, loading, open]);
 
+  // ── Auto-focus input when panel opens or when response finishes typing ──
+  useEffect(() => {
+    if (open && !loading && !typing) {
+      const timer = setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [open, loading, typing]);
+
+
   // ── Cycle placeholder text ──
   useEffect(() => {
     if (!open) return;
